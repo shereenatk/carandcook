@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20D74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="AddressList" representedClassName="AddressList" syncable="YES" codeGenerationType="class">
+        <attribute name="address" optional="YES" attributeType="String"/>
+        <attribute name="cname" optional="YES" attributeType="String"/>
+        <attribute name="gps" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="phone" optional="YES" attributeType="String"/>
+        <attribute name="rname" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="BuyAgain" representedClassName="BuyAgain" syncable="YES" codeGenerationType="class">
+        <attribute name="day" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="itemID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="price" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="qty" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="quality" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CartList" representedClassName="CartList" syncable="YES" codeGenerationType="class">
+        <attribute name="cartCount" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="itemID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="quality" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="ProductList" representedClassName="ProductList" syncable="YES" codeGenerationType="class">
+        <attribute name="country" optional="YES" attributeType="String"/>
+        <attribute name="image" optional="YES" attributeType="String"/>
+        <attribute name="isPromotionItem" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="item" optional="YES" attributeType="String"/>
+        <attribute name="itemCode" optional="YES" attributeType="String"/>
+        <attribute name="itemCount" optional="YES" attributeType="String"/>
+        <attribute name="itemID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="itemType" optional="YES" attributeType="String"/>
+        <attribute name="packagingDisclaimer" optional="YES" attributeType="String"/>
+        <attribute name="poductListModelDescription" optional="YES" attributeType="String"/>
+        <attribute name="priceHighQuality" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="priceLowQuality" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="promotionPrice" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="shelfLife" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <attribute name="storageRequirements" optional="YES" attributeType="String"/>
+        <attribute name="thumbnail" optional="YES" attributeType="Binary"/>
+        <attribute name="unit" optional="YES" attributeType="String"/>
+        <attribute name="weight" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="SupplierCart" representedClassName="SupplierCart" syncable="YES" codeGenerationType="class">
+        <attribute name="cartCount" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="country" optional="YES" attributeType="String"/>
+        <attribute name="itemID" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="price" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="productName" optional="YES" attributeType="String"/>
+        <attribute name="supplierId" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="total" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="unit" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="TimeSlotValues" representedClassName="TimeSlotValues" syncable="YES" codeGenerationType="class">
+        <attribute name="slotDuration" optional="YES" attributeType="String"/>
+        <attribute name="slotID" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
+    <elements>
+        <element name="AddressList" positionX="-36" positionY="135" width="128" height="119"/>
+        <element name="BuyAgain" positionX="-45" positionY="135" width="128" height="104"/>
+        <element name="CartList" positionX="-54" positionY="117" width="128" height="74"/>
+        <element name="ProductList" positionX="-54" positionY="-9" width="128" height="314"/>
+        <element name="SupplierCart" positionX="-45" positionY="135" width="128" height="149"/>
+        <element name="TimeSlotValues" positionX="-54" positionY="117" width="128" height="59"/>
+    </elements>
+</model>
