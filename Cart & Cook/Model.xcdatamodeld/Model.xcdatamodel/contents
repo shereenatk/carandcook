@@ -21,6 +21,7 @@
         <attribute name="quality" optional="YES" attributeType="String"/>
     </entity>
     <entity name="ProductList" representedClassName="ProductList" syncable="YES" codeGenerationType="class">
+        <attribute name="actualImage" optional="YES" attributeType="String"/>
         <attribute name="country" optional="YES" attributeType="String"/>
         <attribute name="image" optional="YES" attributeType="String"/>
         <attribute name="isPromotionItem" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -59,7 +60,7 @@
         <element name="AddressList" positionX="-36" positionY="135" width="128" height="119"/>
         <element name="BuyAgain" positionX="-45" positionY="135" width="128" height="104"/>
         <element name="CartList" positionX="-54" positionY="117" width="128" height="74"/>
-        <element name="ProductList" positionX="-54" positionY="-9" width="128" height="314"/>
+        <element name="ProductList" positionX="-54" positionY="-9" width="128" height="329"/>
         <element name="SupplierCart" positionX="-45" positionY="135" width="128" height="149"/>
         <element name="TimeSlotValues" positionX="-54" positionY="117" width="128" height="59"/>
     </elements>

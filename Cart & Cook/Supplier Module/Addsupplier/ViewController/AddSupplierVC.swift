@@ -26,6 +26,8 @@ class AddSupplierVC: UIViewController , UITextFieldDelegate , CountryPickerViewD
     var tradUploadedPath = ""
     var contractUploadedPath = ""
     var supplierId = 0
+    
+    @IBOutlet weak var catBtn: UIButton!
     var supplierCode = ""
     var addOrEditVM = UpdateSupplierVM()
     let pickerView = ToolbarPickerView()
@@ -56,17 +58,17 @@ class AddSupplierVC: UIViewController , UITextFieldDelegate , CountryPickerViewD
     @IBOutlet weak var cashOnBtn: UIButton!{
         didSet{
             cashOnBtn.tag = 0
-            cashOnBtn.layer.cornerRadius = 10
-            cashOnBtn.layer.borderColor = AppColor.borderColor.value.cgColor
-            cashOnBtn.layer.borderWidth = 0.5
+//            cashOnBtn.layer.cornerRadius = 10
+//            cashOnBtn.layer.borderColor = AppColor.borderColor.value.cgColor
+//            cashOnBtn.layer.borderWidth = 0.5
         }
     }
     @IBOutlet weak var creditBtn: UIButton!{
         didSet{
             creditBtn.tag = 1
-            creditBtn.layer.cornerRadius = 10
-            creditBtn.layer.borderColor = AppColor.borderColor.value.cgColor
-            creditBtn.layer.borderWidth = 0.5
+//            creditBtn.layer.cornerRadius = 10
+//            creditBtn.layer.borderColor = AppColor.borderColor.value.cgColor
+//            creditBtn.layer.borderWidth = 0.5
         }
     }
     @IBOutlet weak var pageTitle: UILabel!
@@ -87,6 +89,35 @@ class AddSupplierVC: UIViewController , UITextFieldDelegate , CountryPickerViewD
         }
     }
     
+    @IBOutlet weak var logoview: UIView!{
+        didSet{
+            logoview.layer.cornerRadius = 10
+            logoview.layer.borderColor = AppColor.borderColor.value.cgColor
+            logoview.layer.borderWidth = 0.5
+        }
+    }
+    
+    @IBOutlet weak var tradeView: UIView!{
+        didSet{
+            tradeView.layer.cornerRadius = 10
+            tradeView.layer.borderColor = AppColor.borderColor.value.cgColor
+            tradeView.layer.borderWidth = 0.5
+        }
+    }
+    @IBOutlet weak var contractView: UIView!{
+        didSet{
+            contractView.layer.cornerRadius = 10
+            contractView.layer.borderColor = AppColor.borderColor.value.cgColor
+            contractView.layer.borderWidth = 0.5
+        }
+    }
+    @IBOutlet weak var paymentTerms: UIView!{
+        didSet{
+            paymentTerms.layer.cornerRadius = 10
+            paymentTerms.layer.borderColor = AppColor.borderColor.value.cgColor
+            paymentTerms.layer.borderWidth = 0.5
+        }
+    }
     @IBOutlet weak var contractBtn: UIButton!{
         didSet{
             contractBtn.layer.cornerRadius = 10
@@ -137,8 +168,29 @@ class AddSupplierVC: UIViewController , UITextFieldDelegate , CountryPickerViewD
         pickerControllerTradeLicence.delegate = self
         setupDelegatesForTextFields()
         setupDelegateForPickerView()
-        if(fromVc == "edit"){
+        if(fromVc == "edit" || fromVc == "view"){
             setAllValues()
+            if(fromVc == "view") {
+                addSupplierBtn.isHidden = true
+                cancelBtn.isHidden = true
+                supplierNameTF.isUserInteractionEnabled = false
+                emirateTF.isUserInteractionEnabled = false
+                vatTF.isUserInteractionEnabled = false
+                mailTF.isUserInteractionEnabled = false
+                mobileTf.isUserInteractionEnabled = false
+                addressTextV.isUserInteractionEnabled = false
+                catTf.isUserInteractionEnabled = false
+                cashOnBtn.isUserInteractionEnabled = false
+                creditBtn.isUserInteractionEnabled = false
+                additionNotT.isUserInteractionEnabled = false
+                tradeLicnumTf.isUserInteractionEnabled = false
+                contractBtn.isUserInteractionEnabled = false
+                tradeLicenceBtn.isUserInteractionEnabled = false
+                creaditDaysLabel.isUserInteractionEnabled = false
+                logoBtn.isUserInteractionEnabled = false
+                catBtn.isUserInteractionEnabled = false
+                telPhnTF.isUserInteractionEnabled = false
+            }
         }
     }
     
@@ -146,8 +198,6 @@ class AddSupplierVC: UIViewController , UITextFieldDelegate , CountryPickerViewD
         self.navigationController?.navigationBar.isHidden = true
        
     }
-    
-    
     
     @IBAction func tapBackgroundAction(_ sender: Any) {
         backView.isHidden = true
@@ -194,6 +244,30 @@ class AddSupplierVC: UIViewController , UITextFieldDelegate , CountryPickerViewD
             present(pickerControllerContract, animated: true)
         }
         
+    }
+    @IBAction func contractImageAction(_ sender: Any) {
+        if let vc =  UIStoryboard(name: "Supplier", bundle: nil).instantiateViewController(withIdentifier: "FullscreenImageVC") as? FullscreenImageVC {
+            vc.image = contractImageView.image ?? UIImage()
+            self.navigationController?.pushViewController(vc, animated:   false)
+
+        }
+        
+    }
+    
+    @IBAction func tradeImageAction(_ sender: Any) {
+        if let vc =  UIStoryboard(name: "Supplier", bundle: nil).instantiateViewController(withIdentifier: "FullscreenImageVC") as? FullscreenImageVC {
+            vc.image = tradeIImageView.image ?? UIImage()
+            self.navigationController?.pushViewController(vc, animated:   false)
+
+        }
+    }
+    
+    @IBAction func logoImageView(_ sender: Any) {
+        if let vc =  UIStoryboard(name: "Supplier", bundle: nil).instantiateViewController(withIdentifier: "FullscreenImageVC") as? FullscreenImageVC {
+            vc.image = logoImageView.image ?? UIImage()
+            self.navigationController?.pushViewController(vc, animated:   false)
+
+        }
     }
     
     @IBAction func galary(_ sender: Any) {

@@ -109,6 +109,8 @@ extension SupplierHomeVC : UITableViewDelegate, UITableViewDataSource {
             }
          
         }
+        cell.viewBtn.tag = indexPath.row
+        cell.viewBtn.addTarget(self, action: #selector(viewSupplier(_:)), for: .touchUpInside)
         
         return cell
     }
@@ -154,4 +156,20 @@ extension SupplierHomeVC : UITableViewDelegate, UITableViewDataSource {
     
         
         }
+    
+    @objc func viewSupplier(_ sender:UIButton)
+    {
+
+        let indexPath = IndexPath(row: sender.tag, section: 0)
+       if let cell = supplierTableView.cellForRow(at: indexPath) as? SupplierTC {
+        if let vc =  UIStoryboard(name: "Supplier", bundle: nil).instantiateViewController(withIdentifier: "AddSupplierVC") as? AddSupplierVC {
+            vc.supplierId = cell.supplierID
+            
+            vc.fromVc = "view"
+            vc.supplierDetails = self.supplierM?[indexPath.row]
+            self.navigationController?.pushViewController(vc, animated:   true)
+
+        }
+       }
+    }
 }

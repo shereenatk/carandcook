@@ -1,5 +1,7 @@
 PODS:
   - Alamofire (4.8.2)
+  - AlamofireImage (3.5.2):
+    - Alamofire (~> 4.8)
   - BadgeControl (1.2.1)
   - Charts (3.6.0):
     - Charts/Core (= 3.6.0)
@@ -21,6 +23,7 @@ PODS:
 
 DEPENDENCIES:
   - Alamofire (~> 4.8.2)
+  - AlamofireImage
   - BadgeControl
   - Charts
   - CountryPickerView
@@ -39,6 +42,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Alamofire
+    - AlamofireImage
     - BadgeControl
     - Charts
     - CountryPickerView
@@ -56,6 +60,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   Alamofire: ae5c501addb7afdbb13687d7f2f722c78734c2d3
+  AlamofireImage: 63cfe3baf1370be6c498149687cf6db3e3b00999
   BadgeControl: 67036e7f586930bba15084dbf89ebce7aa2f2bc2
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CountryPickerView: 9b093bfffb4b06a69ba6185a798cadbf863720e7
@@ -71,6 +76,6 @@ SPEC CHECKSUMS:
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
   XLPagerTabStrip: 61c57fd61f611ee5f01ff1495ad6fbee8bf496c5
 
-PODFILE CHECKSUM: 87071c0ca422c192b3e9ad94979b86418338a366
+PODFILE CHECKSUM: 6a45353de41d6d40fbf1c2c5ca38bbd4518c1a29
 
 COCOAPODS: 1.10.1

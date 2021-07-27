@@ -333,6 +333,7 @@ extension  ReviewVC: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                                    }
         if let vc =  UIStoryboard(name: "Productdetails", bundle: nil).instantiateViewController(withIdentifier: "ProductDetailsVC") as? ProductDetailsVC {
             vc.itemId = cell.id
+            vc.image = cell.productImage.image
             self.navigationController?.pushViewController(vc, animated:   true)
 
         }

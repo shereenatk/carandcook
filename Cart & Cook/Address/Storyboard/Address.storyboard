@@ -565,7 +565,6 @@
                                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <state key="normal" image="chevron.left" catalog="system"/>
                                         <connections>
-                                            <action selector="backAction:" destination="ST5-R2-atQ" eventType="touchUpInside" id="Iht-m8-ZZ5"/>
                                             <action selector="backButtonAction:" destination="yhI-hp-5vO" eventType="touchUpInside" id="qXl-Dj-Ct6"/>
                                         </connections>
                                     </button>
@@ -575,16 +574,29 @@
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ilr-MO-kVr">
+                                        <rect key="frame" x="369" y="35" width="35" height="35"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="35" id="viu-lY-fWV"/>
+                                            <constraint firstAttribute="height" constant="35" id="zks-pB-0L3"/>
+                                        </constraints>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" image="plus" catalog="system"/>
+                                        <connections>
+                                            <action selector="addAddress:" destination="yhI-hp-5vO" eventType="touchUpInside" id="Sgo-v4-e0e"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" red="0.25490196079999999" green="0.12941176469999999" blue="0.35686274509999999" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstItem="2Ka-RQ-Igd" firstAttribute="centerX" secondItem="P9K-Xd-Uip" secondAttribute="centerX" id="7wR-MV-78E"/>
                                     <constraint firstAttribute="height" constant="80" id="EFx-sT-wag"/>
+                                    <constraint firstAttribute="trailing" secondItem="Ilr-MO-kVr" secondAttribute="trailing" constant="10" id="YyF-PS-36N"/>
                                     <constraint firstAttribute="bottom" secondItem="4CY-nG-X60" secondAttribute="bottom" constant="10" id="bgD-A6-PnM"/>
                                     <constraint firstItem="4CY-nG-X60" firstAttribute="leading" secondItem="P9K-Xd-Uip" secondAttribute="leading" constant="15" id="cFz-hE-XG4"/>
                                     <constraint firstItem="2Ka-RQ-Igd" firstAttribute="leading" secondItem="P9K-Xd-Uip" secondAttribute="leading" id="hNI-AO-Ryb"/>
                                     <constraint firstItem="2Ka-RQ-Igd" firstAttribute="centerY" secondItem="4CY-nG-X60" secondAttribute="centerY" id="lsY-gE-Wxj"/>
-                                    <constraint firstAttribute="trailing" secondItem="2Ka-RQ-Igd" secondAttribute="trailing" id="taz-vg-Sie"/>
+                                    <constraint firstItem="Ilr-MO-kVr" firstAttribute="centerY" secondItem="4CY-nG-X60" secondAttribute="centerY" id="wWd-rg-D43"/>
                                 </constraints>
                             </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="kVl-k4-HL1">
@@ -805,6 +817,7 @@
         <image name="mylocation" width="24" height="24"/>
         <image name="pencil" catalog="system" width="128" height="113"/>
         <image name="placeholder" width="64" height="64"/>
+        <image name="plus" catalog="system" width="128" height="113"/>
         <image name="trash.fill" catalog="system" width="121" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

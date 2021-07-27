@@ -19,7 +19,7 @@ pod 'Alamofire', '~> 4.8.2'
    pod 'iRecordView'
    pod 'DropDown'
    pod 'RangeSeekSlider'
-
+pod 'AlamofireImage'
   # Pods for Cart & Cook
 
 end

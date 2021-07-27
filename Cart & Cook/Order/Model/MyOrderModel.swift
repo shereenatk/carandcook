@@ -21,6 +21,7 @@ struct MyOrderModelElement: Codable {
     let deliveredDate: String?
     let cancelledDate, vatNumber: String?
     let isOffline: Bool?
+    let outstandingAmount: Double?
 
     enum CodingKeys: String, CodingKey {
         case orderID = "OrderID"
@@ -43,6 +44,7 @@ struct MyOrderModelElement: Codable {
         case cancelledDate = "CancelledDate"
         case vatNumber = "VATNumber"
         case isOffline = "IsOffline"
+        case outstandingAmount = "OutstandingAmount"
     }
 }
 

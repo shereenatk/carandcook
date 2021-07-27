@@ -130,12 +130,17 @@ class LoginviewControllerVC: UIViewController {
                                     UserDefaults.standard.setValue(true, forKey: ISACTIVATEDACCOUNT)
                                     self.errorLabel.isHidden = true
                                     UserDefaults.standard.set(true, forKey: IS_LOGIN)
-                                    
+                                    guard let window = UIApplication.shared.windows.first else { return }
 
-                                    let storyboard = UIStoryboard(name: "Home", bundle: nil)
-                                        let pvc = storyboard.instantiateViewController(withIdentifier: "AppLandingNC") as! AppLandingNC
-                                        pvc.modalPresentationStyle = UIModalPresentationStyle.overCurrentContext
-                                        self.present(pvc, animated: true, completion: nil)
+                                    UIView.transition(with: window, duration: 0.5, options: .curveEaseInOut, animations: {
+                                        window.rootViewController = AppLandingNC()
+                                    }, completion: nil)
+                                    
+//
+//                                    let storyboard = UIStoryboard(name: "Home", bundle: nil)
+//                                        let pvc = storyboard.instantiateViewController(withIdentifier: "AppLandingNC") as! AppLandingNC
+//                                        pvc.modalPresentationStyle = UIModalPresentationStyle.overCurrentContext
+//                                        self.present(pvc, animated: true, completion: nil)
                                 }
                                 else if let isincurect = self.loginVM.responseStatus?.isIncorrect {
                                         if(isincurect){

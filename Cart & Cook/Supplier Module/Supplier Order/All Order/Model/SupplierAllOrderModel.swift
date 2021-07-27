@@ -26,7 +26,7 @@ struct SupplierAllOrder: Codable {
     let vatAmount, includedVatAmount: Double?
     let orderDate: String?
     let statusID: Int?
-    let orderStatus, invoicePath, deliveryNotePath: String?
+    let orderStatus, invoicePath, paymentReceiptPath, deliveryNotePath: String?
     let items: [SupplierAllItem]?
 
     enum CodingKeys: String, CodingKey {
@@ -44,6 +44,7 @@ struct SupplierAllOrder: Codable {
         case invoicePath = "InvoicePath"
         case deliveryNotePath = "DeliveryNotePath"
         case items = "Items"
+        case paymentReceiptPath = "PaymentReceiptPath"
     }
 }
 

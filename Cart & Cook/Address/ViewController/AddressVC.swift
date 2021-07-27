@@ -10,7 +10,8 @@ import UIKit
 import CountryPickerView
 import CoreData
 class AddressVC: UIViewController, CountryPickerViewDelegate, CountryPickerViewDataSource {
-    var randomInt = 0
+    var editingAddressId = 0
+    var isFromEdit = false
   var emirate = ""
     var area = ""
     var gps = ""
@@ -46,7 +47,9 @@ class AddressVC: UIViewController, CountryPickerViewDelegate, CountryPickerViewD
         cpv.dataSource = self
         setupDelegateForPickerView()
         setupDelegatesForTextFields()
-    
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(sender:)), name: UIResponder.keyboardWillShowNotification, object: nil);
+
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(sender:)), name: UIResponder.keyboardWillHideNotification, object: nil);
     }
     override func viewWillAppear(_ animated: Bool) {
         emirateTF.text = emirate
@@ -67,6 +70,16 @@ class AddressVC: UIViewController, CountryPickerViewDelegate, CountryPickerViewD
             nameTF.text =  self.rName
         }
     }
+    
+    
+    @objc func keyboardWillShow(sender: NSNotification) {
+         self.view.frame.origin.y = -150 // Move view 150 points upward
+    }
+
+    @objc func keyboardWillHide(sender: NSNotification) {
+         self.view.frame.origin.y = 0 // Move view to original position
+    }
+    
     func setupDelegatesForTextFields() {
         emirateTF.delegate = self
         emirateTF.inputView = pickerView
@@ -87,9 +100,7 @@ class AddressVC: UIViewController, CountryPickerViewDelegate, CountryPickerViewD
     
     @IBAction func saveAddress(_ sender: Any) {
         
-        if(randomInt != 0) {
-            randomInt = Int.random(in: 1..<1000)
-        }
+      
         guard let appDelegate =
           UIApplication.shared.delegate as? AppDelegate else {
             return
@@ -100,7 +111,16 @@ class AddressVC: UIViewController, CountryPickerViewDelegate, CountryPickerViewD
         let fetchRequest =
           NSFetchRequest<NSManagedObject>(entityName: "AddressList")
         do {
-           fetchRequest.predicate = NSPredicate(format: "id = %@", "\(randomInt)")
+            var randomInt = 0
+            if( isFromEdit == true ) {
+                randomInt = self.editingAddressId
+            } else {
+                randomInt = Int.random(in: 1..<1000)
+            }
+            
+                fetchRequest.predicate = NSPredicate(format: "id = %@", "\(randomInt)")
+       
+           
             fetchResults = try managedContext.fetch(fetchRequest)
            
              let emirate = emirateTF.text ?? ""
@@ -118,7 +138,7 @@ class AddressVC: UIViewController, CountryPickerViewDelegate, CountryPickerViewD
                                                  in: managedContext)!
                     let property = NSManagedObject(entity: entity,
                                                  insertInto: managedContext)
-                    property.setValue(self.randomInt, forKey: "id")
+                    property.setValue(randomInt, forKey: "id")
                     
                     property.setValue(address, forKey: "address")
                     

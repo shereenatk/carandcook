@@ -13,12 +13,23 @@ class DetailedOrderVC: UIViewController {
     var orderListM : MyOrderModel?
     @IBOutlet weak var productCV: UICollectionView!
     @IBOutlet weak var headingLabel: UILabel!
-    @IBOutlet weak var tableHeight: NSLayoutConstraint!
     @IBOutlet weak var basePriceLabel: UILabel!
     var orderId = 0
     @IBOutlet weak var vatPriceLabel: UILabel!
     @IBOutlet weak var totalPriceLabel: UILabel!
+    @IBOutlet weak var dueAmountLabel: UILabel!
+    @IBOutlet weak var orderDateLabel: UILabel!
     
+    @IBOutlet weak var printBtn: UIButton!{
+        didSet{
+            printBtn.layer.cornerRadius = 5
+            printBtn.layer.borderWidth = 2
+            printBtn.layer.borderColor = AppColor.colorGreen.cgColor
+            printBtn.tintColor = AppColor.colorGreen.value
+            printBtn.setTitleColor(AppColor.colorGreen.value, for: .normal)
+        }
+    }
+    @IBOutlet weak var dueStack: UIStackView!
     
     override func viewDidLoad() {
         getMyOrderList()
@@ -27,21 +38,40 @@ class DetailedOrderVC: UIViewController {
     @IBAction func backAction(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
     }
+    
+    @IBAction func printInvoiceAction(_ sender: Any) {
+        guard let window = UIApplication.shared.windows.first?.rootViewController as? AppLandingNC else {
+            return
+        }
+
+
+        if let vc =  UIStoryboard(name: "OrderDetails", bundle: nil).instantiateViewController(withIdentifier: "PreviewPDFViewController") as? PreviewPDFViewController {
+            let id = self.orderListM?[0].orderID ?? 0
+            vc.orderId = "\(id)"
+            window.pushViewController(vc, animated:   true)
+        }
+    }
+    
     private func getMyOrderList() {
      
         self.orderListVM.getMyOrderList(orderId: self.orderId){ isSuccess, errorMessage  in
                 self.orderListM = self.orderListVM.responseStatus
                 self.orderListM  = self.orderListM?.reversed()
             
-            if let count = self.orderListM?[0].items?.count {
-                self.tableHeight.constant = CGFloat(count * 70 ) + 30
-            }
+            let dueVal = self.orderListM?[0].outstandingAmount ?? 0.0
+            self.orderDateLabel.text = self.orderListM?[0].orderDate ?? ""
             let subtotal = self.orderListM?[0].total ?? 0.0
             let vat  = subtotal * 0.05
             let total = subtotal + vat
+            if(dueVal > 0 ) {
+                self.dueStack.isHidden = false
+            } else {
+                self.dueStack.isHidden = true
+            }
             self.basePriceLabel.text =  "AED " + String(format: "%.2f", ceil(subtotal*100)/100)
             self.vatPriceLabel.text =   "AED " + String(format: "%.2f", ceil(vat*100)/100)
             self.totalPriceLabel.text =   "AED " + String(format: "%.2f", ceil(total*100)/100)
+            self.dueAmountLabel.text =   "AED " + String(format: "%.2f", ceil(dueVal*100)/100)
             self.productCV.reloadData()
             self.activityIndicator.stopAnimating()
         }
@@ -50,6 +80,7 @@ class DetailedOrderVC: UIViewController {
 }
 extension  DetailedOrderVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout  {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print(self.orderListM?[0].items?.count )
         return self.orderListM?[0].items?.count ?? 0
     }
     
@@ -70,12 +101,16 @@ extension  DetailedOrderVC: UICollectionViewDelegate, UICollectionViewDataSource
                 let weight = self.orderListM?[0].items?[indexPath.row].weight ?? 0.0
                 cell.qtyLabel.text = "Quantity: " + "\(weight)"
                 let tota = Double(weight) * actualprice
-                cell.totalLabel.text = "AED " + "\(tota)"
+                cell.totalLabel.text = "AED " + String(format: "%.2f", ceil(tota*100)/100)
                     
                 }
             
         
-    
+        if(indexPath.row % 3 == 1) {
+            cell.itemDeliverdLabel.isHidden = true
+        } else {
+            cell.itemDeliverdLabel.isHidden = false
+        }
        
         cell.nameLabel.text = self.orderListM?[0].items?[indexPath.row].name ?? ""
         return cell
@@ -93,6 +128,7 @@ extension  DetailedOrderVC: UICollectionViewDelegate, UICollectionViewDataSource
                                    }
         if let vc =  UIStoryboard(name: "Productdetails", bundle: nil).instantiateViewController(withIdentifier: "ProductDetailsVC") as? ProductDetailsVC {
             vc.itemId = cell.id
+            vc.image = cell.productImage.image
             self.navigationController?.pushViewController(vc, animated:   true)
 
         }
@@ -123,18 +159,18 @@ extension  DetailedOrderVC: UICollectionViewDelegate, UICollectionViewDataSource
 //
 //        }
 //
-        return CGSize(width: width, height: 75)
+        return CGSize(width: width, height: 100)
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 10
+        return 0
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 10
+        return 0
     }
     
 }

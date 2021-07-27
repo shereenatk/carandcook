@@ -26,6 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
               
               //Set navigation bar Back button tint colour
         UINavigationBar.appearance().tintColor = UIColor.white
+//        FirebaseApp.configure()
         return true
     }
 

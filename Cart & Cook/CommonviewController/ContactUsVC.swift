@@ -13,6 +13,7 @@ import SafariServices
 class ContactUsVC: UIViewController, MFMailComposeViewControllerDelegate {
     
     
+    @IBOutlet weak var cardListTV: UITableView!
     @IBAction func backAction(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
     }

@@ -13,4 +13,6 @@ class ReviewCC: UICollectionViewCell {
     
     @IBOutlet weak var totalLabel: UILabel!
     @IBOutlet weak var qtyLabel: UILabel!
+    
+    @IBOutlet weak var itemDeliverdLabel: UILabel!
 }

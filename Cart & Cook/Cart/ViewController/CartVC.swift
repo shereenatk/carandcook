@@ -10,7 +10,7 @@ import UIKit
 import CoreData
 import SideMenu
 class CartVC: UIViewController {
-    
+    var getobjectVM = GetObjectVM()
     @IBOutlet weak var emotyView: UIView!
     @IBOutlet weak var totalLabel: UILabel!
     @IBOutlet weak var vatLabel: UILabel!
@@ -28,7 +28,6 @@ class CartVC: UIViewController {
     var subTotalAmount = 0.0
     var vatamount = 0.0
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    var getobjectVM = GetObjectVM()
     
     override func viewWillAppear(_ animated: Bool) {
         self.tableItems = []
@@ -261,11 +260,34 @@ extension  CartVC: UICollectionViewDelegate, UICollectionViewDataSource, UIColle
         cell.discriptionLabel.text = self.tableItems[indexPath.row].value(forKey: "poductListModelDescription") as? String ?? ""
         cell.nameLabel.text = self.tableItems[indexPath.row].value(forKey: "item") as? String ?? ""
         cell.originLabel.text = self.tableItems[indexPath.row].value(forKey: "country") as? String ?? ""
-        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
-            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
-        }
+//        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
+//            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
+//        }
         
+        if(isConnectedToInternet()) {
+            if let file_path = self.tableItems[indexPath.row].value(forKey: "image") as? String  {
+                DispatchQueue.main.async {
+                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
+                            var  fileBytes  = ""
+                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
+                            var encoded64 = byte
+                            let remainder = encoded64.count % 4
+                            if remainder > 0 {
+                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
+                                                              withPad: "=",
+                                                              startingAt: 0)
+                            }
+                            let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
+                            let decodedimage = UIImage(data: dataDecoded, scale: 1)
 
+                            cell.productImage.image = decodedimage
+                        }
+
+                    }
+                }
+            }
+
+        }
       
         
         cell.addTapAction = { cell in
@@ -365,6 +387,7 @@ extension  CartVC: UICollectionViewDelegate, UICollectionViewDataSource, UIColle
                                    }
         if let vc =  UIStoryboard(name: "Productdetails", bundle: nil).instantiateViewController(withIdentifier: "ProductDetailsVC") as? ProductDetailsVC {
             vc.itemId = cell.id
+            vc.image = cell.productImage.image
             self.navigationController?.pushViewController(vc, animated:   true)
 
         }

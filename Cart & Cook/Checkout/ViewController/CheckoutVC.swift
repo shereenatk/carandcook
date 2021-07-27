@@ -59,16 +59,17 @@ class CheckoutVC: UIViewController {
         let fetchRequest =
           NSFetchRequest<NSManagedObject>(entityName: "AddressList")
         do {
+            fetchRequest.predicate = NSPredicate(format: "id = %@", "\(addressId)")
             let items = try managedContext.fetch(fetchRequest)
             if(items.count > 0) {
-                var address = items[addressId].value(forKey: "cname") as? String ?? ""
-                if let fulladdress = items[addressId].value(forKey: "address") as? String{
+                var address = items[0].value(forKey: "cname") as? String ?? ""
+                if let fulladdress = items[0].value(forKey: "address") as? String{
                     var fulladdressArr = fulladdress.components(separatedBy: ",")
                         let area = fulladdressArr[1]
                     let  emirate = fulladdressArr[2]
                     let shop = fulladdressArr[0]
                     let street = shop + "," + area + "," + emirate
-                    let phone = items[addressId].value(forKey: "phone") as? String ?? ""
+                    let phone = items[0].value(forKey: "phone") as? String ?? ""
                     address = address + "\n" + street + "\n" + phone
                     addressLabel.text = address
                 }

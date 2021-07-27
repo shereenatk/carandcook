@@ -28,10 +28,30 @@ class HomeViewControllerVC: UIViewController {
     @IBOutlet weak var tvHeight: NSLayoutConstraint!
     @IBOutlet weak var topDealsTV: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
+    @IBOutlet weak var overDueView: UIView!{
+        didSet{
+            overDueView.startShimmeringEffect()
+        }
+    }
+    
     var fromVc = ""
     var quality = ""
+    var task: URLSessionDownloadTask!
+    var session: URLSession!
+    var cache: NSCache<NSString, UIImage>!
+    typealias ImageCacheLoaderCompletionHandler = ((UIImage) -> ())
     var imageSource: [ImageSource] = [ImageSource(image: UIImage(named: "why_banner")!), ImageSource(image: UIImage(named: "slider1")!) , ImageSource(image: UIImage(named: "slider2")!), ImageSource(image: UIImage(named: "slider3")!)]
+    
+    
     override func viewDidLoad() {
+        
+        let priceList = self.outstangingAmountApi()
+        if(priceList[0] > 0) {
+            overDueView.isHidden = false
+        } else {
+            overDueView.isHidden = true
+        }
         priceUpdateTimer()
         if(self.isLowQuality()) {
             quality = "M"
@@ -53,7 +73,7 @@ class HomeViewControllerVC: UIViewController {
             categotyLabel.isHidden = true
             topDealsTV.isUserInteractionEnabled = false
         }
-//        timer = Timer.scheduledTimer(timeInterval: 900, target: self, selector: #selector(self.updatePrice), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 900, target: self, selector: #selector(self.updatePrice), userInfo: nil, repeats: true)
         slideShow.setImageInputs(self.imageSource)
     }
  
@@ -64,6 +84,7 @@ class HomeViewControllerVC: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.isNavigationBarHidden = true
         getOfflineData()
         if(isConnectedToInternet()){
             getProductList()
@@ -99,7 +120,7 @@ class HomeViewControllerVC: UIViewController {
                             self.appDelegate.persistentContainer.viewContext
                         for index in 0...count - 1 {
                             let country = self.productListVM.responseStatus?[index].country ?? ""
-                            let image = self.productListVM.responseStatus?[index].image ?? ""
+                            let image = self.productListVM.responseStatus?[index].thumbnailImage ?? ""
                             let isPromotionItem = self.productListVM.responseStatus?[index].isPromotionItem ?? false
                             let item = self.productListVM.responseStatus?[index].item ?? "0"
                             let itemCode = self.productListVM.responseStatus?[index].itemCode ?? "0"
@@ -110,7 +131,7 @@ class HomeViewControllerVC: UIViewController {
                             let itemType = self.productListVM.responseStatus?[index].itemType ?? ""
                             let packagingDisclaimer = self.productListVM.responseStatus?[index].packagingDisclaimer ?? "0"
                             let  poductListModelDescription = self.productListVM.responseStatus?[index].poductListModelDescription ?? ""
-                           
+                            let actualImage =  self.productListVM.responseStatus?[index].image ?? ""
                             let promotionPrice = self.productListVM.responseStatus?[index].promotionPrice ?? 0.0
                             let shelfLife = self.productListVM.responseStatus?[index].shelfLife ?? ""
                             let status = self.productListVM.responseStatus?[index].status ?? ""
@@ -123,13 +144,14 @@ class HomeViewControllerVC: UIViewController {
                             do {
                                fetchRequest.predicate = NSPredicate(format: "itemID = %@", "\(itemID)")
                                 fetchResults = try managedContext2.fetch(fetchRequest)
+                                let entity =
+                                  NSEntityDescription.entity(forEntityName: "ProductList",
+                                                             in: managedContext2)!
+                                let property = NSManagedObject(entity: entity,
+                                                             insertInto: managedContext2)
                                 if fetchResults.count == 0 {
                                     DispatchQueue.main.async  {
-                                        let entity =
-                                          NSEntityDescription.entity(forEntityName: "ProductList",
-                                                                     in: managedContext2)!
-                                        let property = NSManagedObject(entity: entity,
-                                                                     insertInto: managedContext2)
+                                       
                                         property.setValue(weight, forKey: "weight")
                                         property.setValue(country, forKey: "country")
                                         property.setValue(image, forKey: "image")
@@ -148,19 +170,51 @@ class HomeViewControllerVC: UIViewController {
                                         property.setValue(storageRequirements, forKey: "storageRequirements")
                                         property.setValue(status, forKey: "status")
                                         property.setValue(unit, forKey: "unit")
-                                       
+                                        property.setValue(actualImage, forKey: "actualImage")
                                         DispatchQueue.main.async {
                                             do {
                                               try managedContext2.save()
                                                 if(index == count - 1 ) {
-                                                        self.saveThumbImage()
-                                                    self.getOfflineData()
+//                                                        self.saveThumbImage()
+//                                                    self.getOfflineData()
                                                 }
 
                                             } catch let error as NSError {
                                               print("Could not save. \(error), \(error.userInfo)")
                                             }
                                     }
+                                }
+                                } else {
+                                    fetchResults[0].setValue(weight, forKey: "weight")
+                                    fetchResults[0].setValue(country, forKey: "country")
+                                    fetchResults[0].setValue(image, forKey: "image")
+                                    fetchResults[0].setValue(isPromotionItem, forKey: "isPromotionItem")
+                                    fetchResults[0].setValue(item, forKey: "item")
+                                    fetchResults[0].setValue(itemCode, forKey: "itemCode")
+                                    fetchResults[0].setValue(itemCount, forKey: "itemCount")
+                                    fetchResults[0].setValue(itemID, forKey: "itemID")
+                                    fetchResults[0].setValue(itemType, forKey: "itemType")
+                                    fetchResults[0].setValue(packagingDisclaimer, forKey: "packagingDisclaimer")
+                                    fetchResults[0].setValue(poductListModelDescription, forKey: "poductListModelDescription")
+                                    fetchResults[0].setValue(priceHighQuality, forKey: "priceHighQuality")
+                                    fetchResults[0].setValue(priceLowQuality, forKey: "priceLowQuality")
+                                    fetchResults[0].setValue(promotionPrice, forKey: "promotionPrice")
+                                    fetchResults[0].setValue(shelfLife, forKey: "shelfLife")
+                                    fetchResults[0].setValue(storageRequirements, forKey: "storageRequirements")
+                                    fetchResults[0].setValue(status, forKey: "status")
+                                    fetchResults[0].setValue(unit, forKey: "unit")
+                                    fetchResults[0].setValue(actualImage, forKey: "actualImage")
+                                    DispatchQueue.main.async {
+                                        do {
+                                          try managedContext2.save()
+                                            if(index == count - 1 ) {
+//                                                        self.saveThumbImage()
+                                               
+                                            }
+
+                                        } catch let error as NSError {
+                                          print("Could not save. \(error), \(error.userInfo)")
+                                        }
                                 }
                                 }
                             } catch let error as NSError {
@@ -170,6 +224,7 @@ class HomeViewControllerVC: UIViewController {
                          
                         }
                     }
+                    self.getOfflineData()
                 }
                 
             }
@@ -178,7 +233,7 @@ class HomeViewControllerVC: UIViewController {
     }
     
     @objc func updatePrice(){
-        
+        getProductList()
     }
     
     private func getOfflineData() {
@@ -236,6 +291,17 @@ class HomeViewControllerVC: UIViewController {
         HomeViewControllerVC.isCategoryselected = 2
         tabBarController?.selectedIndex = 1
     }
+    
+    @IBAction func meatActionClick(_ sender: Any) {
+        HomeViewControllerVC.isCategoryselected = 5
+        tabBarController?.selectedIndex = 1
+    }
+    @IBAction func paultryActionClick(_ sender: Any) {
+        HomeViewControllerVC.isCategoryselected = 9
+        tabBarController?.selectedIndex = 1
+    }
+    
+    
     @IBAction func backeryActionClick(_ sender: Any) {
        
         HomeViewControllerVC.isCategoryselected = 3
@@ -245,14 +311,6 @@ class HomeViewControllerVC: UIViewController {
        
         HomeViewControllerVC.isCategoryselected = 4
         tabBarController?.selectedIndex = 1
-    }
-    
-    
-    @IBAction func meatActionClick(_ sender: Any) {
-        
-        HomeViewControllerVC.isCategoryselected = 5
-        tabBarController?.selectedIndex = 1
-    
     }
     @IBAction func riceActionClick(_ sender: Any) {
        
@@ -267,6 +325,21 @@ class HomeViewControllerVC: UIViewController {
     @IBAction func beverageActionClick(_ sender: Any) {
        
         HomeViewControllerVC.isCategoryselected = 8
+        tabBarController?.selectedIndex = 1
+    }
+    
+    @IBAction func packagingAction(_ sender: Any) {
+        HomeViewControllerVC.isCategoryselected = 11
+        tabBarController?.selectedIndex = 1
+    }
+    
+    @IBAction func organicAction(_ sender: Any) {
+        HomeViewControllerVC.isCategoryselected = 10
+        tabBarController?.selectedIndex = 1
+    }
+    
+    @IBAction func kitchenAction(_ sender: Any) {
+        HomeViewControllerVC.isCategoryselected = 12
         tabBarController?.selectedIndex = 1
     }
     
@@ -301,51 +374,53 @@ class HomeViewControllerVC: UIViewController {
         }
     }
     
-    func saveThumbImage() {
-        let homeCount = self.productListVM.responseStatus?.count ?? 1
-        for index in 0...homeCount - 1 {
-            let managedContext =
-                self.appDelegate.persistentContainer.viewContext
-           
-           let entity2 =
-             NSEntityDescription.entity(forEntityName: "ProductList",
-                                        in: managedContext)!
-           let thumnNail  = self.productListVM.responseStatus?[index].image ?? ""
-           let id = self.productListVM.responseStatus?[index].itemID ?? 0
-            var finalData: Data?
-           
-           self.getobjectVM.getObjectData(fileNAme: thumnNail){  isSuccess, errorMessage  in
-                   var  fileBytes  = ""
-                   if let  byte = self.getobjectVM.responseStatus?.fileBytes {
-                       fileBytes = byte
-                    finalData = Data(base64Encoded: fileBytes, options: .ignoreUnknownCharacters)!
-                    let fetchRequest =
-                          NSFetchRequest<NSManagedObject>(entityName: "ProductList")
-                      
-                    do {
-                        fetchRequest.predicate = NSPredicate(format: "itemID = %@", "\(id)")
-                       
-                        let result = try? managedContext.fetch(fetchRequest)
-//                        print(result?.count, result)
-                        if(result?.count == 1) {
-                            let dic = result![0]
-                        dic.setValue(finalData, forKey: "thumbnail")
-                            try managedContext.save()
-                        }
-//                        if(index == homecount - 1) {
-////                           print( "DB Updated")
-////                            self.refreshControl.endRefreshing()
+//    func saveThumbImage() {
+//        let homeCount = self.productListVM.responseStatus?.count ?? 1
+//        for index in 0...homeCount - 1 {
+//            let managedContext =
+//                self.appDelegate.persistentContainer.viewContext
+//
+//           let entity2 =
+//             NSEntityDescription.entity(forEntityName: "ProductList",
+//                                        in: managedContext)!
+//           let thumnNail  = self.productListVM.responseStatus?[index].thumbnailImage ?? ""
+//           let id = self.productListVM.responseStatus?[index].itemID ?? 0
+//            var finalData: Data?
+//
+//           self.getobjectVM.getObjectData(fileNAme: thumnNail){  isSuccess, errorMessage  in
+//                   var  fileBytes  = ""
+//                   if let  byte = self.getobjectVM.responseStatus?.fileBytes {
+//                       fileBytes = byte
+//                    finalData = Data(base64Encoded: fileBytes, options: .ignoreUnknownCharacters)!
+//                    let fetchRequest =
+//                          NSFetchRequest<NSManagedObject>(entityName: "ProductList")
+//
+//                    do {
+//                        fetchRequest.predicate = NSPredicate(format: "itemID = %@", "\(id)")
+//
+//                        let result = try? managedContext.fetch(fetchRequest)
+////                        print(result?.count, result)
+//                        if(result?.count == 1) {
+//                            let dic = result![0]
+//                        dic.setValue(finalData, forKey: "thumbnail")
+//                            try managedContext.save()
 //                        }
-                         
-                    } catch let error as NSError {
-                                  print("Could not fetch. \(error), \(error.userInfo)")
-                    }
-//                    property.setValue(dataDecoded, forKey: "path")
-                   }
-
-           }
-       }
-    }
+////                        if(index == homecount - 1) {
+//////                           print( "DB Updated")
+//////                            self.refreshControl.endRefreshing()
+////                        }
+//
+//                    } catch let error as NSError {
+//                                  print("Could not fetch. \(error), \(error.userInfo)")
+//                    }
+////                    property.setValue(dataDecoded, forKey: "path")
+//                   }
+//
+//           }
+//       }
+//    }
+    
+    
     
     func priceUpdateTimer() {
         Timer.scheduledTimer(withTimeInterval: 900, repeats: true) { timer in
@@ -394,6 +469,35 @@ class HomeViewControllerVC: UIViewController {
             }
         }
     }
+    func  thumbDownload(imagePath: String, completionHandler: @escaping ImageCacheLoaderCompletionHandler) {
+        
+        if let url = URL(string: imagePath) {
+            task = session.downloadTask(with: url, completionHandler: { (location, response, error) in
+                if let data = try? Data(contentsOf: url) {
+//                    print(url)
+                    do {
+                        let fetchedDataDictionary = try JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary
+//                        print(fetchedDataDictionary!)
+                        let message = fetchedDataDictionary?["fileBytes"] as? String ?? ""
+                        let dataDecoded : Data = Data(base64Encoded: message, options: .ignoreUnknownCharacters)!
+                        if let img  = UIImage(data: dataDecoded) {
+                        self.cache.setObject(img, forKey: imagePath as NSString)
+                                           DispatchQueue.main.async {
+                                               completionHandler(img)
+                                           }
+                        }
+                      
+                    }
+                    catch let error as NSError {
+                        print(error.debugDescription)
+                    }
+                }
+               
+            })
+            task.resume()
+        }
+        
+    }
 }
 extension HomeViewControllerVC : UITableViewDelegate, UITableViewDataSource {
     
@@ -406,6 +510,38 @@ extension HomeViewControllerVC : UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "TopDelasTVCell", for: indexPath) as? TopDelasTVCell else {
             return UITableViewCell()
         }
+        
+//        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
+//            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
+////           cell.activityIndicator.stopAnimating()
+//        }
+        
+        if(isConnectedToInternet()) {
+            if let file_path = self.tableItems[indexPath.row].value(forKey: "image") as? String  {
+                DispatchQueue.main.async {
+                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
+                            var  fileBytes  = ""
+                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
+                            var encoded64 = byte
+                            let remainder = encoded64.count % 4
+                            if remainder > 0 {
+                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
+                                                              withPad: "=",
+                                                              startingAt: 0)
+                            }
+                            let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
+                            let decodedimage = UIImage(data: dataDecoded, scale: 1)
+
+                            cell.productImage.image = decodedimage
+                        }
+
+                    }
+                }
+            }
+
+        }
+        
+//        cell.productImage.image = image
         
         cell.nameLabel.text = self.tableItems[indexPath.row].value(forKey: "item") as? String ?? ""
         cell.discriptionLabel.text = self.tableItems[indexPath.row].value(forKey: "poductListModelDescription") as? String ?? ""
@@ -421,10 +557,8 @@ extension HomeViewControllerVC : UITableViewDelegate, UITableViewDataSource {
                 cell.actualPriceLabel.text =  "AED " + String(format: "%.2f", ceil(actualprice*100)/100)
             }
         }
-        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
-            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
-//           cell.activityIndicator.stopAnimating()
-        }
+//                cell.activityIndicator.stopAnimating()
+        
         if let price = self.tableItems[indexPath.row].value(forKey: "promotionPrice") as? Double {
             cell.offerPriceLabel.text  = "AED " + String(format: "%.2f", ceil(price*100)/100)
         }
@@ -444,7 +578,7 @@ extension HomeViewControllerVC : UITableViewDelegate, UITableViewDataSource {
             
         }
         cell.id = itemID
-        if(fromVc == "verification") {
+        if(self.fromVc == "verification") {
             cell.addButton.isHidden = true
         }
         cell.addTapAction = { cell in
@@ -473,6 +607,84 @@ extension HomeViewControllerVC : UITableViewDelegate, UITableViewDataSource {
       
             self.updateCartCount(id: itemID, count: qty, quality: self.quality)
                   }
+        
+//        if(isConnectedToInternet()) {
+//                    if let url = self.tableItems[indexPath.row].value(forKey: "image") as? String  {
+//        thumbDownload(imagePath: url) { (image) in
+//              // Before assigning the image, check whether the current cell is visible
+//              if let updateCell = tableView.cellForRow(at: indexPath) {
+//                cell.productImage.image = image
+//
+//                cell.nameLabel.text = self.tableItems[indexPath.row].value(forKey: "item") as? String ?? ""
+//                cell.discriptionLabel.text = self.tableItems[indexPath.row].value(forKey: "poductListModelDescription") as? String ?? ""
+//                cell.originLabel.text = self.tableItems[indexPath.row].value(forKey: "country") as? String ?? ""
+//                cell.actualPriceLabel.textColor = .black
+//
+//                if(self.quality == "M") {
+//                    if let actualprice = self.tableItems[indexPath.row].value(forKey: "priceLowQuality") as? Double {
+//                        cell.actualPriceLabel.text = "AED " +  String(format: "%.2f", ceil(actualprice*100)/100)
+//                    }
+//                } else {
+//                    if let actualprice = self.tableItems[indexPath.row].value(forKey: "priceHighQuality") as? Double {
+//                        cell.actualPriceLabel.text =  "AED " + String(format: "%.2f", ceil(actualprice*100)/100)
+//                    }
+//                }
+////                cell.activityIndicator.stopAnimating()
+//
+//                if let price = self.tableItems[indexPath.row].value(forKey: "promotionPrice") as? Double {
+//                    cell.offerPriceLabel.text  = "AED " + String(format: "%.2f", ceil(price*100)/100)
+//                }
+//                var itemID = 0
+//                itemID = self.tableItems[indexPath.row].value(forKey: "itemID") as? Int ?? 0
+//                if let cartCount = self.getCartCount(id: itemID) {
+//                    if(cartCount > 0) {
+//                        cell.subButton.isHidden = false
+//                        cell.qtyLabel.isHidden = false
+//                        cell.qtyLabel.text = "\(cartCount)"
+//                    } else {
+//                        cell.subButton.isHidden = true
+//                        cell.qtyLabel.isHidden = true
+//                        cell.qtyLabel.text = "\(cartCount)"
+//
+//                    }
+//
+//                }
+//                cell.id = itemID
+//                if(self.fromVc == "verification") {
+//                    cell.addButton.isHidden = true
+//                }
+//                cell.addTapAction = { cell in
+//                 var  qty: Int =   Int(cell.qtyLabel.text ?? "0") ?? 0
+//                    qty = qty + 1
+//                    cell.subButton.isHidden = false
+//                    cell.qtyLabel.isHidden = false
+//                 cell.qtyLabel.text  = "\(qty)"
+//                    self.updateCartCount(id: itemID, count: qty, quality: self.quality)
+//                }
+//                cell.subTapAction = { cell in
+//
+//                    var  qty: Int =   Int(cell.qtyLabel.text ?? "0") ?? 0
+//                       if(qty > 1) {
+//                          qty = qty - 1
+//
+//                        cell.qtyLabel.text  = "\(qty)"
+//                        cell.subButton.isHidden = false
+//                        cell.qtyLabel.isHidden = false
+//
+//                       } else {
+//                        qty = qty - 1
+//                        cell.subButton.isHidden = true
+//                        cell.qtyLabel.isHidden = true
+//                       }
+//
+//                    self.updateCartCount(id: itemID, count: qty, quality: self.quality)
+//                          }
+//              }
+//          }
+//                    }
+//
+////    }
+//
         return cell
     }
     
@@ -490,6 +702,7 @@ extension HomeViewControllerVC : UITableViewDelegate, UITableViewDataSource {
         if let vc =  UIStoryboard(name: "Productdetails", bundle: nil).instantiateViewController(withIdentifier: "ProductDetailsVC") as? ProductDetailsVC {
             let cell = tableView.cellForRow(at: indexPath) as! TopDelasTVCell
             vc.itemId = cell.id
+            vc.image = cell.productImage.image
             self.navigationController?.pushViewController(vc, animated:   true)
 
         }
@@ -516,5 +729,9 @@ extension HomeViewControllerVC : UITableViewDelegate, UITableViewDataSource {
 //        
 //        
 //    }
+    
+    
+    
+
     
 }

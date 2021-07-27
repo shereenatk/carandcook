@@ -20,7 +20,7 @@ class BuyagainVC: UIViewController {
     var dayOfWeek = 0
     static var quickDic : [[String:Any]] = [[:]]
     @IBOutlet weak var emotyView: UIView!
-    
+    var getobjectVM = GetObjectVM()
     override func viewDidLoad() {
         self.setupSideMenu()
         self.scrollview.contentSize.height = 1.0
@@ -374,9 +374,33 @@ extension  BuyagainVC: UICollectionViewDelegate, UICollectionViewDataSource, UIC
         cell.discriptionLabel.text = self.tableItems[indexPath.row].value(forKey: "poductListModelDescription") as? String ?? ""
         cell.nameLabel.text = self.tableItems[indexPath.row].value(forKey: "item") as? String ?? ""
         cell.originLabel.text = self.tableItems[indexPath.row].value(forKey: "country") as? String ?? ""
-        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
-            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
-//           cell.activityIndicator.stopAnimating()
+//        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
+//            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
+////           cell.activityIndicator.stopAnimating()
+//        }
+        if(isConnectedToInternet()) {
+            if let file_path = tableItems[indexPath.row].value(forKey: "image") as? String  {
+                DispatchQueue.main.async {
+                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
+                            var  fileBytes  = ""
+                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
+                            var encoded64 = byte
+                            let remainder = encoded64.count % 4
+                            if remainder > 0 {
+                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
+                                                              withPad: "=",
+                                                              startingAt: 0)
+                            }
+                            let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
+                            let decodedimage = UIImage(data: dataDecoded, scale: 1)
+
+                            cell.productImage.image = decodedimage
+                        }
+
+                    }
+                }
+            }
+
         }
         
        
@@ -445,6 +469,7 @@ extension  BuyagainVC: UICollectionViewDelegate, UICollectionViewDataSource, UIC
                                    }
         if let vc =  UIStoryboard(name: "Productdetails", bundle: nil).instantiateViewController(withIdentifier: "ProductDetailsVC") as? ProductDetailsVC {
             vc.itemId = cell.id
+            vc.image = cell.productImage.image
             self.navigationController?.pushViewController(vc, animated:   true)
 
         }

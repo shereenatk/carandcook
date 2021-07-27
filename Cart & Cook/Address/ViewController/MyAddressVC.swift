@@ -58,10 +58,19 @@ class MyAddressVC: UIViewController {
         }
     }
     
+    @IBAction func addAddress(_ sender: Any) {
+        if let vc =  UIStoryboard(name: "Address", bundle: nil).instantiateViewController(withIdentifier: "LocateAddressVC") as? LocateAddressVC {
+            self.navigationController?.pushViewController(vc, animated:   true)
+        }
+    }
+    
+    
+    
     @IBAction func confirmLocAction(_ sender: Any) {
         
         if let vc =  UIStoryboard(name: "Checkout", bundle: nil).instantiateViewController(withIdentifier: "CheckoutVC") as? CheckoutVC {
             vc.addressId = selectedAddressId
+//            print(selectedAddressId)
             self.navigationController?.pushViewController(vc, animated:   true)
         }
 
@@ -173,7 +182,8 @@ extension  MyAddressVC: UICollectionViewDelegate, UICollectionViewDataSource, UI
                 vc.area = fulladdressArr[1]
                 vc.emirate = fulladdressArr[2]
                 vc.gps = gps
-                vc.randomInt = id
+                vc.editingAddressId = id
+                vc.isFromEdit = true
                 vc.fromVc = self.fromVc
                 vc.shop = fulladdressArr[0]
                 self.navigationController?.pushViewController(vc, animated:   true)

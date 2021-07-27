@@ -8,6 +8,10 @@
 import Foundation
 import UIKit
 class ProductListCVCell: UICollectionViewCell {
+    override func prepareForReuse() {
+        super.prepareForReuse()// this is in my Custom Cell class
+        productImage.image = UIImage(named: "placeholderProduct") // this is will be called whenever you dequeue the cell .
+       }
     @IBOutlet weak var productImage: SquareImageView!
     var id = 0
     @IBOutlet weak var offerView: SquareView!{
@@ -22,6 +26,7 @@ class ProductListCVCell: UICollectionViewCell {
         }
     }
     
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var discriptionLabel: UILabel!
    
     @IBOutlet weak var nameLabel: UILabel!

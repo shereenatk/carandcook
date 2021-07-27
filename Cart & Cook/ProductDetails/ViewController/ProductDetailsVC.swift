@@ -35,6 +35,7 @@ class ProductDetailsVC: UIViewController, UITextFieldDelegate {
         }
     }
     var getobjectVM = GetObjectVM()
+    var image = UIImage(named: "cartcooklogo_new")
     @IBOutlet weak var actualPriceLabel: UILabel!{
         didSet{
             actualPriceLabel.sizeToFit()
@@ -56,11 +57,7 @@ class ProductDetailsVC: UIViewController, UITextFieldDelegate {
         }
     }
     override func viewDidLoad() {
-        if(self.isLowQuality()) {
-            self.quality = "M"
-        } else {
-            self.quality = "H"
-        }
+       
         qtyLabel.addTarget(self, action: #selector(self.textFieldDidChange(_:)),
                                   for: .editingChanged)
         getProductDetails()
@@ -109,51 +106,66 @@ class ProductDetailsVC: UIViewController, UITextFieldDelegate {
             self.itemcountLabel.text = self.tableItems[0].value(forKey: "itemCount") as? String ?? ""
             self.shelfLifeLabel.text = self.tableItems[0].value(forKey: "shelfLife") as? String ?? ""
             if let unint = self.tableItems[0].value(forKey: "unit") as? String  {
-                if(self.isLowQuality()) {
-                    quality = "M"
-                    if let actualprice = self.tableItems[0].value(forKey: "priceLowQuality") as? Double {
-                        self.actualPriceLabel.text = "AED " + String(format: "%.2f", ceil(actualprice*100)/100)  + " / " + unint
-                    }
-                } else {
-                    quality = "H"
-                    if let actualprice = self.tableItems[0].value(forKey: "priceHighQuality") as? Double {
-                        self.actualPriceLabel.text =  "AED " + String(format: "%.2f", ceil(actualprice*100)/100) + " / " + unint
-                    }
-                }
+                
+                let isPromotionItem = self.tableItems[0].value(forKey: "isPromotionItem") as? Bool ?? false
+                   if(isPromotionItem){
+                       self.offerView.isHidden = false
+                       if let actualprice = self.tableItems[0].value(forKey: "promotionPrice") as? Double {
+                           self.actualPriceLabel.text = "AED " + String(format: "%.2f", ceil(actualprice*100)/100)  + " / " + unint
+                       }
+                   } else {
+                    self.offerView.isHidden =  true
+                       if let unint = self.tableItems[0].value(forKey: "unit") as? String  {
+                           if(self.isLowQuality()) {
+                            quality = "M"
+                            if let actualprice = self.tableItems[0].value(forKey: "priceLowQuality") as? Double {
+                                self.actualPriceLabel.text = "AED " + String(format: "%.2f", ceil(actualprice*100)/100)  + " / " + unint
+                            }
+                           } else {
+                            quality = "H"
+                            if let actualprice = self.tableItems[0].value(forKey: "priceHighQuality") as? Double {
+                                self.actualPriceLabel.text =  "AED " + String(format: "%.2f", ceil(actualprice*100)/100) + " / " + unint
+                            }
+                           }
+                       }
+                   }
+                
             }
+            
             if let cartCount = self.getCartCount(id: self.itemId) {
                     self.qtyLabel.text = "\(cartCount)"
 
             }
-            if let  byted =  tableItems[0].value(forKey: "thumbnail") as? Data {
-                self.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
-    //           cell.activityIndicator.stopAnimating()
-            }
-            
-//            if(isConnectedToInternet()) {
-//                if let file_path = self.tableItems[0].value(forKey: "image") as? String  {
-//                    DispatchQueue.main.async {
-//                        self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
-//                                var  fileBytes  = ""
-//                            if let  byte = self.getobjectVM.responseStatus?.fileBytes {
-//                                var encoded64 = byte
-//                                let remainder = encoded64.count % 4
-//                                if remainder > 0 {
-//                                    encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
-//                                                                  withPad: "=",
-//                                                                  startingAt: 0)
-//                                }
-//                                let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
-//                                let decodedimage = UIImage(data: dataDecoded, scale: 0.5)
-//
-//                                self.productImage.image = decodedimage
-//                            }
-//
-//                        }
-//                    }
-//                }
-//
+//            self.productImage.image = self.image
+//            if let  byted =  tableItems[0].value(forKey: "thumbnail") as? Data {
+//                self.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
+//    //           cell.activityIndicator.stopAnimating()
 //            }
+            
+            if(isConnectedToInternet()) {
+                if let file_path = self.tableItems[0].value(forKey: "image") as? String  {
+                    DispatchQueue.main.async {
+                        self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
+                                var  fileBytes  = ""
+                            if let  byte = self.getobjectVM.responseStatus?.fileBytes {
+                                var encoded64 = byte
+                                let remainder = encoded64.count % 4
+                                if remainder > 0 {
+                                    encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
+                                                                  withPad: "=",
+                                                                  startingAt: 0)
+                                }
+                                let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
+                                let decodedimage = UIImage(data: dataDecoded, scale: 1)
+
+                                self.productImage.image = decodedimage
+                            }
+
+                        }
+                    }
+                }
+
+            }
       
             self.activityIndicator.stopAnimating()
         }catch let error as NSError {
@@ -242,10 +254,22 @@ class ProductDetailsVC: UIViewController, UITextFieldDelegate {
            let origin = originLabel.text,
            let discount = discriptionLabel.text,
            let price = actualPriceLabel.text {
-            let textShare = [ name, origin, discount,price ]
-            let activityViewController = UIActivityViewController(activityItems: textShare , applicationActivities: nil)
-            activityViewController.popoverPresentationController?.sourceView = self.view
-            self.present(activityViewController, animated: true, completion: nil)
+            let textToShare = [ name, origin, discount,price ]
+//            let activityViewController = UIActivityViewController(activityItems: textShare , applicationActivities: nil)
+//            activityViewController.popoverPresentationController?.sourceView = self.view
+//            self.present(activityViewController, animated: true, completion: nil)
+            
+            
+//            let textToShare = [text]
+               let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
+               
+               if let popoverController = activityViewController.popoverPresentationController {
+                   popoverController.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2, width: 0, height: 0)
+                   popoverController.sourceView = self.view
+                   popoverController.permittedArrowDirections = UIPopoverArrowDirection(rawValue: 0)
+               }
+
+               self.present(activityViewController, animated: true, completion: nil)
         }
            
     }
@@ -316,55 +340,62 @@ extension  ProductDetailsVC: UICollectionViewDelegate, UICollectionViewDataSourc
          guard let cell =  categoryListCV.dequeueReusableCell(withReuseIdentifier: "ProductListCVCell", for: indexPath) as? ProductListCVCell else {
                return UICollectionViewCell()
           }
-        if let isPromotionItem = self.relatedItems[indexPath.row].value(forKey: "isPromotionItem") as? Bool {
+         let isPromotionItem = self.relatedItems[indexPath.row].value(forKey: "isPromotionItem") as? Bool ?? false
             if(isPromotionItem){
                 cell.offerView.isHidden = false
+                if let unint = self.relatedItems[indexPath.row].value(forKey: "unit") as? String  {
+                        if let actualprice = self.relatedItems[indexPath.row].value(forKey: "promotionPrice") as? Double {
+                            cell.actualPriceLabel.text = "AED " + String(format: "%.2f", ceil(actualprice*100)/100)  + " / " + unint
+                        }
+                   
+                }
             } else {
                 cell.offerView.isHidden = true
+                if let unint = self.relatedItems[indexPath.row].value(forKey: "unit") as? String  {
+                    if(self.isLowQuality()) {
+                        if let actualprice = self.relatedItems[indexPath.row].value(forKey: "priceLowQuality") as? Double {
+                            cell.actualPriceLabel.text = "AED " + String(format: "%.2f", ceil(actualprice*100)/100)  + " / " + unint
+                        }
+                    } else {
+                        if let actualprice = self.relatedItems[indexPath.row].value(forKey: "priceHighQuality") as? Double {
+                            cell.actualPriceLabel.text =  "AED " + String(format: "%.2f", ceil(actualprice*100)/100) + " / " + unint
+                        }
+                    }
+                }
             }
-        }
+        
         cell.discriptionLabel.text = self.relatedItems[indexPath.row].value(forKey: "poductListModelDescription") as? String ?? ""
         cell.nameLabel.text = self.relatedItems[indexPath.row].value(forKey: "item") as? String ?? ""
         cell.originLabel.text = self.relatedItems[indexPath.row].value(forKey: "country") as? String ?? ""
-        if let unint = self.relatedItems[indexPath.row].value(forKey: "unit") as? String  {
-            if(self.isLowQuality()) {
-                if let actualprice = self.relatedItems[indexPath.row].value(forKey: "priceLowQuality") as? Double {
-                    cell.actualPriceLabel.text = "AED " + String(format: "%.2f", ceil(actualprice*100)/100)  + " / " + unint
-                }
-            } else {
-                if let actualprice = self.relatedItems[indexPath.row].value(forKey: "priceHighQuality") as? Double {
-                    cell.actualPriceLabel.text =  "AED " + String(format: "%.2f", ceil(actualprice*100)/100) + " / " + unint
+       
+//        if let  byted =  self.relatedItems[indexPath.row].value(forKey: "thumbnail") as? Data {
+//            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
+////           cell.activityIndicator.stopAnimating()
+//        }
+        if(isConnectedToInternet()) {
+            if let file_path = self.relatedItems[indexPath.row].value(forKey: "image") as? String  {
+                DispatchQueue.main.async {
+                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
+                            var  fileBytes  = ""
+                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
+                            var encoded64 = byte
+                            let remainder = encoded64.count % 4
+                            if remainder > 0 {
+                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
+                                                              withPad: "=",
+                                                              startingAt: 0)
+                            }
+                            let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
+                            let decodedimage = UIImage(data: dataDecoded, scale: 1)
+
+                            cell.productImage.image = decodedimage
+                        }
+
+                    }
                 }
             }
+
         }
-        if let  byted =  self.relatedItems[indexPath.row].value(forKey: "thumbnail") as? Data {
-            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
-//           cell.activityIndicator.stopAnimating()
-        }
-//        if(isConnectedToInternet()) {
-//            if let file_path = self.relatedItems[indexPath.row].value(forKey: "image") as? String  {
-//                DispatchQueue.main.async {
-//                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
-//                            var  fileBytes  = ""
-//                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
-//                            var encoded64 = byte
-//                            let remainder = encoded64.count % 4
-//                            if remainder > 0 {
-//                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
-//                                                              withPad: "=",
-//                                                              startingAt: 0)
-//                            }
-//                            let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
-//                            let decodedimage = UIImage(data: dataDecoded, scale: 0.5)
-//
-//                            cell.productImage.image = decodedimage
-//                        }
-//
-//                    }
-//                }
-//            }
-//
-//        }
      
         var itemID = 0
         itemID = self.relatedItems[indexPath.row].value(forKey: "itemID") as? Int ?? 0

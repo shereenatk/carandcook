@@ -27,6 +27,7 @@ class MenuVC: UIViewController {
     @IBOutlet weak var mailLabel: UILabel!
     @IBOutlet weak var topbtnsHeight: NSLayoutConstraint!
     
+    @IBOutlet weak var versionBtn: UIButton!
     @IBOutlet weak var topbtnView: UIView!
     @IBOutlet weak var logoutBtn: UIButton!
     let group = DispatchGroup()
@@ -52,6 +53,9 @@ override func viewDidLoad() {
             logoutBtn.isHidden = false
         }
     }
+    let  version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+    
+    versionBtn.setTitle("Version " + version, for: .normal)
 }
 
 override func viewWillAppear(_ animated: Bool) {
@@ -69,6 +73,22 @@ override func viewWillAppear(_ animated: Bool) {
             self.navigationController?.pushViewController(vc, animated:   true)
 
         }
+    }
+    
+    @IBAction func showPaymentMethods(_ sender: Any) {
+        if let vc =  UIStoryboard(name: "Menu", bundle: nil).instantiateViewController(withIdentifier: "PaymentMethodVC") as? PaymentMethodVC {
+            self.navigationController?.pushViewController(vc, animated:   true)
+
+        }
+    }
+    
+    
+    @IBAction func myWallet(_ sender: Any) {
+        if let vc =  UIStoryboard(name: "Menu", bundle: nil).instantiateViewController(withIdentifier: "MyWalletVC") as? MyWalletVC {
+            self.navigationController?.pushViewController(vc, animated:   true)
+
+        }
+
     }
     
     @IBAction func savedAddress(_ sender: Any) {

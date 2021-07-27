@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import CoreData
 import WebKit
-class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate{
+class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate, WKUIDelegate{
 
     var placeOrderVM = OrderVM()
     var placeOrderM: OrderModel?
@@ -75,7 +75,7 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
            let configuration = WKWebViewConfiguration()
            configuration.userContentController = contentController
 
-           self.webView = WKWebView( frame: CGRect(x: 10, y: 200, width: self.webviewOuterView.bounds.size.width - 30 , height: self.webviewOuterView.bounds.size.height), configuration: configuration)
+           self.webView = WKWebView( frame: CGRect(x: 10, y: 200, width: self.view.bounds.size.width - 30 , height: self.view.bounds.size.height - 250), configuration: configuration)
         self.webView.contentMode = .scaleAspectFit
         self.webView.isOpaque = true
            
@@ -153,6 +153,7 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
         let fetchRequest =
           NSFetchRequest<NSManagedObject>(entityName: "AddressList")
         do {
+            fetchRequest.predicate = NSPredicate(format: "id = %@", "\(self.addresId)")
              addressItems = try managedContext.fetch(fetchRequest)
         } catch let error as NSError {
           print("Could not fetch. \(error), \(error.userInfo)")
@@ -175,10 +176,13 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
         self.cardListView.isHidden = true
         self.webviewOuterView.isHidden = false
         self.webView.isHidden = false
+        self.webView.navigationDelegate = self
+        self.webView.uiDelegate = self
         let custometrId = UserDefaults.standard.value(forKey: USERID) as? Int ?? 0
 //        let url = URL(string: "https://cartandcook.com/Payment/ConfirmOrder?TotalAmount=5.25&CustomerID=12&CustomerCardID=10")!
-        let url = URL(string: "http://10.1.12.30:91/Payment/ConfirmOrder/ConfirmOrder?TotalAmount=\(totalAmount)&CustomerCardID=\(self.selectedCardId)&CustomerID=\(custometrId)")!
+        let url = URL(string: "https://cartandcook.com/Payment/ConfirmOrder/ConfirmOrder?TotalAmount=\(totalAmount)&CustomerCardID=\(self.selectedCardId)&CustomerID=\(custometrId)")!
         webView.load(URLRequest(url: url))
+        self.activityIndicator.startAnimating()
     }
     
     private func getSavedCardLists() {
@@ -254,13 +258,13 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
         }
     print(orders)
         
-       var fulladdress =  addressItems[self.addresId].value(forKey: "address") as? String ?? ""
+       var fulladdress =  addressItems[0].value(forKey: "address") as? String ?? ""
             var fulladdressArr = fulladdress.components(separatedBy: ",")
                 let area = fulladdressArr[1]
             let  emirate = fulladdressArr[2]
             let shop = fulladdressArr[0]
             let street = shop + "," + area + "," + emirate
-            let phone =  addressItems[self.addresId].value(forKey: "phone") as? String ?? ""
+            let phone =  addressItems[0].value(forKey: "phone") as? String ?? ""
         var paymentthod = ""
     var payment  = ""
         if(selectedIdex == 0) {
@@ -276,9 +280,9 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
 
         let paramDict =  [
             "Items": orders,
-            "GPSCoordinates": addressItems[self.addresId].value(forKey: "gps") as? String ?? "" ,
+            "GPSCoordinates": addressItems[0].value(forKey: "gps") as? String ?? "" ,
             "DeliveryAddress": shop + "," + area  ,
-            "DeliveryName":  addressItems[self.addresId].value(forKey: "cname") as? String ?? "" ,
+            "DeliveryName":  addressItems[0].value(forKey: "cname") as? String ?? "" ,
             "DeliveryCity": emirate,
             "DeliveryCountry": "UAE",
             "DeliveryPinCode": "",
@@ -506,7 +510,11 @@ print("aaa", paramDict)
 
     }
     
-    
+  
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        self.activityIndicator.stopAnimating()
+       }
+       
 }
 
 extension PaymentVC : UITableViewDelegate, UITableViewDataSource {

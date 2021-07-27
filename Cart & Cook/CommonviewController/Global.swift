@@ -35,8 +35,8 @@ class AppConstants {
     static var authUserName = "System@CartandCook.com"
     static var authPassword = "api_C&C2@2!"
     struct BaseURL {
-//        static let url = "http://10.1.12.30:90/api/"
-        static let url =  "http://mobile.cartandcook.com/api/"
+        static let url = "http://10.1.12.30:90/api/"
+//        static let url =  "https://mobile.cartandcook.com/api/"
     }
     
     class func getBaseUrl() -> String {

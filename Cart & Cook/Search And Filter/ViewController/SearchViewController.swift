@@ -17,6 +17,7 @@ class SearchViewController: UIViewController , UISearchBarDelegate, UITextFieldD
     var dropButton = DropDown()
     var tableItems : [NSManagedObject] = []
     var quality = ""
+    var getobjectVM = GetObjectVM()
     @IBOutlet weak var errorImage: UIImageView!
     @IBOutlet weak var categoryListCV: UICollectionView!
     @IBOutlet weak var searchBar: UISearchBar!{
@@ -184,35 +185,35 @@ extension  SearchViewController: UICollectionViewDelegate, UICollectionViewDataS
 //                }
 //            }
 //        }
-        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
-            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
-//           cell.activityIndicator.stopAnimating()
-        }
-        
-//        if(isConnectedToInternet()) {
-//            if let file_path = self.tableItems[indexPath.row].value(forKey: "image") as? String  {
-//                DispatchQueue.main.async {
-//                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
-//                            var  fileBytes  = ""
-//                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
-//                            var encoded64 = byte
-//                            let remainder = encoded64.count % 4
-//                            if remainder > 0 {
-//                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
-//                                                              withPad: "=",
-//                                                              startingAt: 0)
-//                            }
-//                            let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
-//                            let decodedimage = UIImage(data: dataDecoded, scale: 0.5)
-//
-//                            cell.productImage.image = decodedimage
-//                        }
-//
-//                    }
-//                }
-//            }
-//
+//        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
+//            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
+////           cell.activityIndicator.stopAnimating()
 //        }
+        
+        if(isConnectedToInternet()) {
+            if let file_path = self.tableItems[indexPath.row].value(forKey: "image") as? String  {
+                DispatchQueue.main.async {
+                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
+                            var  fileBytes  = ""
+                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
+                            var encoded64 = byte
+                            let remainder = encoded64.count % 4
+                            if remainder > 0 {
+                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
+                                                              withPad: "=",
+                                                              startingAt: 0)
+                            }
+                            let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
+                            let decodedimage = UIImage(data: dataDecoded, scale: 1)
+
+                            cell.productImage.image = decodedimage
+                        }
+
+                    }
+                }
+            }
+
+        }
      
         var itemID = 0
         itemID = self.tableItems[indexPath.row].value(forKey: "itemID") as? Int ?? 0
@@ -271,6 +272,7 @@ extension  SearchViewController: UICollectionViewDelegate, UICollectionViewDataS
                                    }
         if let vc =  UIStoryboard(name: "Productdetails", bundle: nil).instantiateViewController(withIdentifier: "ProductDetailsVC") as? ProductDetailsVC {
             vc.itemId = cell.id
+            vc.image = cell.productImage.image
             self.navigationController?.pushViewController(vc, animated:   true)
 
         }

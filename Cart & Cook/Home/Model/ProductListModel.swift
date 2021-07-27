@@ -11,7 +11,7 @@ import Foundation
 struct PoductListModelElement: Codable {
     let itemID: Int?
     let item, itemCode, itemType: String?
-    let image: String?
+    let image, thumbnailImage : String?
     let unit: String?
     let weight: Double?
     let price: Double?
@@ -42,6 +42,7 @@ struct PoductListModelElement: Codable {
         case isPromotionItem = "IsPromotionItem"
         case promotionPrice = "PromotionPrice"
         case status = "Status"
+        case thumbnailImage = "ThumbnailImage"
     }
 }
 typealias PoductListModel = [PoductListModelElement]

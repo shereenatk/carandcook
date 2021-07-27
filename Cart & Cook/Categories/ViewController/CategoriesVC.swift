@@ -10,13 +10,17 @@ import Foundation
 import UIKit
 import CoreData
 import SideMenu
+import AlamofireImage
 class CategoriesVC: UIViewController {
-    
+    var task: URLSessionDownloadTask!
+    var session: URLSession!
+    var cache: NSCache<NSString, UIImage>!
+    typealias ImageCacheLoaderCompletionHandler = ((UIImage) -> ())
     @IBOutlet weak var noItemView: UIView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var fullListScrollView: UIScrollView!
     @IBOutlet weak var shopbyCatLabel: UILabel!
-  
+    var fetchedImage = [UIImage]()
     @IBOutlet weak var sizeFilterLabel: UILabel! {
         didSet{
             sizeFilterLabel.layer.cornerRadius = 10
@@ -128,6 +132,14 @@ class CategoriesVC: UIViewController {
                 HomeViewControllerVC.isCategoryselected = 7
             case "Beverages":
                 HomeViewControllerVC.isCategoryselected = 8
+            case "Eggs & Poultry":
+                HomeViewControllerVC.isCategoryselected = 9
+            case "Organic Foods":
+                HomeViewControllerVC.isCategoryselected = 10
+            case "Packaging":
+                HomeViewControllerVC.isCategoryselected = 11
+            case "Kitchen Equipment":
+                HomeViewControllerVC.isCategoryselected = 12
             default:
                 HomeViewControllerVC.isCategoryselected = 1
             }
@@ -162,6 +174,14 @@ class CategoriesVC: UIViewController {
             self.titleLabel.text = "Spices"
         case 8:
             self.titleLabel.text = "Beverages"
+        case 9:
+            self.titleLabel.text = "Eggs & Poultry"
+        case 10:
+            self.titleLabel.text = "Organic Foods"
+        case 11:
+            self.titleLabel.text = "Packaging"
+        case 12:
+            self.titleLabel.text = "Kitchen Equipment"
         default:
             self.titleLabel.text = "Categories"
         }
@@ -233,6 +253,11 @@ class CategoriesVC: UIViewController {
                                 }
                             }
                         }
+                        
+//                        if let  byted =  item.value(forKey: "thumbnail") as? Data {
+//                            fetchedImage.append( (UIImage(data: byted , scale: 0.7) ??  UIImage(named: "cartcooklogo_new"))!)
+//                //           cell.activityIndicator.stopAnimating()
+//                        }
                         
                     }
                 }
@@ -340,6 +365,15 @@ class CategoriesVC: UIViewController {
         categoryListCV.isHidden = false
         HomeViewControllerVC.isCategoryselected = 0
     }
+    @IBAction func paultryActionClick(_ sender: Any) {
+       
+        HomeViewControllerVC.isCategoryselected = 9
+        setTitle()
+        getProductList(type :HomeViewControllerVC.isCategoryselected)
+        fullListScrollView.isHidden = true
+        categoryListCV.isHidden = false
+        HomeViewControllerVC.isCategoryselected = 0
+    }
     @IBAction func riceActionClick(_ sender: Any) {
       
         
@@ -359,9 +393,27 @@ class CategoriesVC: UIViewController {
         categoryListCV.isHidden = false
         HomeViewControllerVC.isCategoryselected = 0
     }
-    @IBAction func oilActionClick(_ sender: Any) {
+    @IBAction func packActionClick(_ sender: Any) {
      
-        HomeViewControllerVC.isCategoryselected = 9
+        HomeViewControllerVC.isCategoryselected = 11
+        setTitle()
+        getProductList(type :HomeViewControllerVC.isCategoryselected)
+        fullListScrollView.isHidden = true
+        categoryListCV.isHidden = false
+        HomeViewControllerVC.isCategoryselected = 0
+    }
+    
+    @IBAction func kitchenAction(_ sender: Any) {
+        HomeViewControllerVC.isCategoryselected = 12
+        setTitle()
+        getProductList(type :HomeViewControllerVC.isCategoryselected)
+        fullListScrollView.isHidden = true
+        categoryListCV.isHidden = false
+        HomeViewControllerVC.isCategoryselected = 0
+    }
+    
+    @IBAction func organicAction(_ sender: Any) {
+        HomeViewControllerVC.isCategoryselected = 10
         setTitle()
         getProductList(type :HomeViewControllerVC.isCategoryselected)
         fullListScrollView.isHidden = true
@@ -380,6 +432,9 @@ class CategoriesVC: UIViewController {
     }
    
 }
+
+   
+
 extension  CategoriesVC: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout  {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.tableItems.count
@@ -390,6 +445,8 @@ extension  CategoriesVC: UICollectionViewDelegate, UICollectionViewDataSource, U
          guard let cell =  categoryListCV.dequeueReusableCell(withReuseIdentifier: "ProductListCVCell", for: indexPath) as? ProductListCVCell else {
                return UICollectionViewCell()
           }
+//        cell.productImage.image = nil
+        
 //        if let isPromotionItem = self.tableItems[indexPath.row].value(forKey: "isPromotionItem") as? Bool {
 //            if(isPromotionItem){
 //                cell.offerView.isHidden = false
@@ -436,35 +493,50 @@ extension  CategoriesVC: UICollectionViewDelegate, UICollectionViewDataSource, U
 //                }
 //            }
 //        }
-        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
-            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
-//           cell.activityIndicator.stopAnimating()
-        }
-        
-//        if(isConnectedToInternet()) {
-//            if let file_path = self.tableItems[indexPath.row].value(forKey: "image") as? String  {
-//                DispatchQueue.main.async {
-//                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
-//                            var  fileBytes  = ""
-//                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
-//                            var encoded64 = byte
-//                            let remainder = encoded64.count % 4
-//                            if remainder > 0 {
-//                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
-//                                                              withPad: "=",
-//                                                              startingAt: 0)
-//                            }
-//                            let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
-//                            let decodedimage = UIImage(data: dataDecoded, scale: 0.5)
-//
-//                            cell.productImage.image = decodedimage
-//                        }
-//
-//                    }
-//                }
+//        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
+//            DispatchQueue.main.async {
+//                cell.productImage.image = UIImage(data: byted , scale: 0.1)
 //            }
-//
+////            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
+//           cell.activityIndicator.stopAnimating()
 //        }
+//        else {
+//            cell.activityIndicator.stopAnimating()
+//            cell.productImage.image = UIImage(named: "cartcooklogo_new")
+//        }
+        
+        if(isConnectedToInternet()) {
+            if let file_path = self.tableItems[indexPath.row].value(forKey: "image") as? String  {
+                cell.activityIndicator.startAnimating()
+                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
+                            var  fileBytes  = ""
+                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
+                          
+                            var encoded64 = byte
+                            let remainder = encoded64.count % 4
+                            if remainder > 0 {
+                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
+                                                              withPad: "=",
+                                                              startingAt: 0)
+                            }
+                            DispatchQueue.main.async {
+                                let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
+                                let decodedimage = UIImage(data: dataDecoded, scale: 0.7)
+//                                if let updateCell = self.categoryListCV.cellForItem(at: indexPath){
+                                    cell.productImage.image = decodedimage
+                                    cell.activityIndicator.stopAnimating()
+//                                }
+                                
+
+                            }
+
+                        } 
+
+                    }
+                
+            }
+
+        }
      
         var itemID = 0
         itemID = self.tableItems[indexPath.row].value(forKey: "itemID") as? Int ?? 0
@@ -523,6 +595,7 @@ extension  CategoriesVC: UICollectionViewDelegate, UICollectionViewDataSource, U
                                    }
         if let vc =  UIStoryboard(name: "Productdetails", bundle: nil).instantiateViewController(withIdentifier: "ProductDetailsVC") as? ProductDetailsVC {
             vc.itemId = cell.id
+            vc.image = cell.productImage.image
             self.navigationController?.pushViewController(vc, animated:   true)
 
         }
@@ -567,6 +640,17 @@ extension  CategoriesVC: UICollectionViewDelegate, UICollectionViewDataSource, U
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 10
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+            if indexPath.row == self.tableItems.count - 1 {  //numberofitem count
+                updateNextSet()
+            }
+    }
+
+    func updateNextSet(){
+           print("On Completetion")
+           //requests another set of data (20 more items) from the server.
     }
     
 }

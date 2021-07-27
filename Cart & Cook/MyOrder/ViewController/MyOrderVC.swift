@@ -96,8 +96,8 @@ extension MyOrderVC : UITableViewDelegate, UITableViewDataSource {
                 return formatter
             } ()
             // Dates used for the comparison
-            let date1 = dateFormatter.date(from: time)!
-            let date2 = dateFormatter.date(from: nowMinusTwoAndAHalfHours.getFormattedDate(format: "MMM dd yyyy hh:mma"))!
+            let date1 = dateFormatter.date(from: time) ??  Date()
+            let date2 = dateFormatter.date(from: nowMinusTwoAndAHalfHours.getFormattedDate(format: "MMM dd yyyy hh:mma")) ?? Date()
             if(date1 > date2) {
                 cell.timerLabel.isHidden = false
                 var diffInMinInt = Calendar.current.dateComponents([.minute], from: date2, to: date1).minute ?? 0
@@ -176,30 +176,32 @@ extension MyOrderVC : UITableViewDelegate, UITableViewDataSource {
        }
         let id = cell.orderNum
         let storyboard = UIStoryboard(name: "OrderDetails", bundle: nil)
-            let pvc = storyboard.instantiateViewController(withIdentifier: "OrderDetailsVC") as! OrderDetailsVC
-        pvc.orderNum = "\(cell.orderNum)"
-        if let status = cell.statusLabel.text {
-            pvc.status = status
+        if    let pvc = storyboard.instantiateViewController(withIdentifier: "OrderDetailsVC") as? OrderDetailsVC {
+            pvc.orderNum = "\(cell.orderNum)"
+            if let status = cell.statusLabel.text {
+                pvc.status = status
+            }
+            if cell.timerLabel.isHidden {
+                pvc.isCancelHidden = true
+            } else {
+                pvc.isCancelHidden = false
+            }
+            
+            if let dateVal = cell.dateLabel.text {
+                pvc.dateVal = dateVal
+            }
+            
+            if let dateVal = cell.dateLabel.text {
+                pvc.dateVal = dateVal
+            }
+            if let totalVal = cell.totalAMountLabel.text {
+                pvc.toral = totalVal
+            }
+                pvc.modalPresentationStyle =
+                    UIModalPresentationStyle.overCurrentContext
+                self.present(pvc, animated: true, completion: nil)
         }
-        if cell.timerLabel.isHidden {
-            pvc.isCancelHidden = true
-        } else {
-            pvc.isCancelHidden = false
-        }
-        
-        if let dateVal = cell.dateLabel.text {
-            pvc.dateVal = dateVal
-        }
-        
-        if let dateVal = cell.dateLabel.text {
-            pvc.dateVal = dateVal
-        }
-        if let totalVal = cell.totalAMountLabel.text {
-            pvc.toral = totalVal
-        }
-            pvc.modalPresentationStyle =
-                UIModalPresentationStyle.overCurrentContext
-            self.present(pvc, animated: true, completion: nil)
+      
     
     
     }

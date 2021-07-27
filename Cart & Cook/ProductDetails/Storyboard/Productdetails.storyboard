@@ -72,7 +72,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TCA-a8-4ou">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="853"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="sik-FW-ji1" customClass="SquareImageView" customModule="Cart___Cook" customModuleProvider="target">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="placeholderProduct" translatesAutoresizingMaskIntoConstraints="NO" id="sik-FW-ji1" customClass="SquareImageView" customModule="Cart___Cook" customModuleProvider="target">
                                                 <rect key="frame" x="15" y="25" width="384" height="150"/>
                                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                 <constraints>
@@ -829,7 +829,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="394" height="641"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="6sH-gL-po5" customClass="SquareImageView" customModule="Cart___Cook" customModuleProvider="target">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="placeholderProduct" translatesAutoresizingMaskIntoConstraints="NO" id="6sH-gL-po5">
                                                     <rect key="frame" x="5" y="5" width="384" height="150"/>
                                                     <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                     <constraints>
@@ -1532,6 +1532,7 @@
         <image name="ic_search_no_results" width="538.5" height="386"/>
         <image name="list.bullet" catalog="system" width="128" height="88"/>
         <image name="magnifyingglass" catalog="system" width="128" height="115"/>
+        <image name="placeholderProduct" width="119" height="118"/>
         <image name="share" width="27" height="27"/>
         <image name="stop" width="16" height="16"/>
         <systemColor name="systemBackgroundColor">

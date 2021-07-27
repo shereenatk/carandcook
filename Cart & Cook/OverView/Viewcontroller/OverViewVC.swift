@@ -8,8 +8,10 @@
 import Foundation
 import UIKit
 import Charts
-class OverViewVC: UIViewController, UITextFieldDelegate {
+class OverViewVC: UIViewController, UITextFieldDelegate, UIDocumentInteractionControllerDelegate {
    
+    @IBOutlet weak var pieChartView: ShadowView!
+    @IBOutlet weak var expenseView: ShadowView!
     @IBOutlet weak var itemExpenseWidth: NSLayoutConstraint!
     @IBOutlet weak var dateTypeTF: UITextField!
     @IBOutlet weak var topDateLabel: UILabel!
@@ -139,6 +141,96 @@ class OverViewVC: UIViewController, UITextFieldDelegate {
             }
         }
        
+    }
+    
+    
+    @IBAction func savePdf(_ sender: Any) {
+//        let pdfData = NSMutableData()
+//            UIGraphicsBeginPDFContextToData(pdfData, expensechartView.bounds, nil)
+//            UIGraphicsBeginPDFPage()
+//
+//            guard let pdfContext = UIGraphicsGetCurrentContext() else { return }
+//
+//        expensechartView.layer.render(in: pdfContext)
+//            UIGraphicsEndPDFContext()
+//
+//
+//            if let documentDirectories = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first {
+//                let documentsFileName = documentDirectories + "/" + "overview.pdf"
+//                debugPrint(documentsFileName)
+//                pdfData.write(toFile: documentsFileName, atomically: true)
+//                let viewer = UIDocumentInteractionController(url: URL(fileURLWithPath: documentsFileName))
+//                      viewer.delegate = self
+//
+//                      viewer.presentPreview(animated: true)
+//            }
+       
+        
+        let pdf = NSMutableData()
+        UIGraphicsBeginPDFContextToData(pdf, CGRect(x: -60, y: 50, width: 595.2 , height: 841.8), nil);
+            UIGraphicsBeginPDFPage();
+        guard let context = UIGraphicsGetCurrentContext() else { return }
+        let now = Date()
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "dd-MM-yyy hh:mm a"
+        let headerText: NSString  = formatter.string(from: now) as NSString
+        headerText.draw(at: CGPoint(x:400, y:-20), withAttributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12.0),  NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        
+        
+        
+        
+        let footerText: NSString = "Powered by Cart and Cook"
+        
+     
+        let font = UIFont.systemFont(ofSize: 12.0)
+        let attributes = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor: UIColor.lightGray]
+        let pageNumber = "Page " + "- \(1) "
+        var size = pageNumber.size(withAttributes: attributes)
+        let drawX = 450
+        let drawY = 595
+        var drawPoint = CGPoint(x: drawX, y: drawY)
+        
+            pageNumber.draw(at: drawPoint, withAttributes: attributes)
+       
+        
+            size = footerText.size(withAttributes: attributes)
+//            drawX = footerRect.maxX - size.width - 80
+            drawPoint = CGPoint(x: -50, y: 595 )
+            footerText.draw(at: drawPoint, withAttributes: attributes)
+        
+        
+        
+        
+        
+   
+        let views = [expenseView, pieChartView]
+            for view in views {
+                view?.layer.render(in: context)
+                let height = view?.bounds.size.height ?? 0
+                context.translateBy(x: 0, y: height + 30);
+            }
+ 
+            UIGraphicsEndPDFContext()
+            if let documentDirectories = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first {
+                let documentsFileName = documentDirectories + "/" + "overview.pdf"
+                debugPrint(documentsFileName)
+                pdf.write(toFile: documentsFileName, atomically: true)
+                let viewer = UIDocumentInteractionController(url: URL(fileURLWithPath: documentsFileName))
+                      viewer.delegate = self
+
+                      viewer.presentPreview(animated: true)
+            }
+        
+        
+    }
+    func documentInteractionControllerViewControllerForPreview(_ controller: UIDocumentInteractionController) -> UIViewController
+    {
+
+
+        UINavigationBar.appearance().tintColor = UIColor.white
+
+        return self
     }
     
     func showDatePicker(){

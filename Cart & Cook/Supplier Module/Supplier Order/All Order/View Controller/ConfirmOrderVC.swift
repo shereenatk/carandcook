@@ -13,17 +13,20 @@ class ConfirmSupplierOrderVC: UIViewController {
     var orderListM : SupplierAllOrder?
     let pickerControllerInvoice = UIImagePickerController()
     let pickerControllerDeliveryNote = UIImagePickerController()
+    let pickerControllerPaymentNote = UIImagePickerController()
     var totalamount = 0.0
     var subTotalAmount = 0.0
     var vatamount = 0.0
     var pathDeliveryNote = ""
     var pathInvoice = ""
+    var pathPayment = ""
     var confirmSupOrderVM = ConfirmSupplierOrderVM()
     var selectedBtnVal = -1
     let now = Date()
     let formatter = DateFormatter()
     var uplodedInvoicePath = ""
     var uploadedDeliveryPath = ""
+    var uploadedPaymentPath = ""
     @IBOutlet weak var actionView: SquareView!
     @IBOutlet weak var backView: UIView!
     @IBOutlet weak var dateLabel: UILabel!
@@ -31,6 +34,8 @@ class ConfirmSupplierOrderVC: UIViewController {
     @IBOutlet weak var vatLabel: UILabel!
     @IBOutlet weak var subTotalLabel: UILabel!
     @IBOutlet weak var suopplierNameLabel: UILabel!
+    @IBOutlet weak var paymentImageView: UIImageView!
+    
     @IBOutlet weak var uploadInvoice: UIButton!{
         didSet{
             uploadInvoice.layer.cornerRadius = 10
@@ -49,8 +54,17 @@ class ConfirmSupplierOrderVC: UIViewController {
     @IBOutlet weak var confirmDeliveryBtn: UIButton!{
         didSet{
             confirmDeliveryBtn.layer.cornerRadius = 10
-            confirmDeliveryBtn.backgroundColor = AppColor.colorPrimary.value
+            confirmDeliveryBtn.layer.borderColor = AppColor.borderColor.value.cgColor
             confirmDeliveryBtn.layer.borderWidth = 0.5
+        }
+    }
+    
+    
+    @IBOutlet weak var uploadPaymentRecieptBtn: UIButton!{
+        didSet{
+            uploadPaymentRecieptBtn.layer.cornerRadius = 10
+            uploadPaymentRecieptBtn.layer.borderColor = AppColor.borderColor.value.cgColor
+            uploadPaymentRecieptBtn.layer.borderWidth = 0.5
         }
     }
     
@@ -60,6 +74,7 @@ class ConfirmSupplierOrderVC: UIViewController {
     override func viewDidLoad() {
         pickerControllerInvoice.delegate = self
         pickerControllerDeliveryNote.delegate = self
+        pickerControllerPaymentNote.delegate = self
         if let id = self.orderListM?.orderID  {
             ordrIdLabel.text = "ID #" + "\(id)"
         }
@@ -87,12 +102,23 @@ class ConfirmSupplierOrderVC: UIViewController {
     self.backView.isHidden = false
     selectedBtnVal = 1
     }
+    
+    @IBAction func uploadPaymentRecieptAction(_ sender: Any) {
+        self.actionView.isHidden = false
+        self.backView.isHidden = false
+        selectedBtnVal = 2
+    }
+    
     @IBAction func uploadInvoiceAction(_ sender: Any) {
         self.actionView.isHidden = false
         self.backView.isHidden = false
         selectedBtnVal = 0
     }
     
+    @IBAction func clickBackView(_ sender: Any) {
+        self.backView.isHidden = true
+        self.actionView.isHidden = true
+    }
     
     @IBAction func closeInavoiceImageAction(_ sender: Any) {
         self.invoiceImageView.image = UIImage()
@@ -112,6 +138,9 @@ class ConfirmSupplierOrderVC: UIViewController {
         }
         if(pathDeliveryNote != "") {
             uploadImages(path: self.pathDeliveryNote, type: "deliverynote")
+        }
+        if(pathPayment != "") {
+            uploadImages(path: self.pathPayment, type: "paymentReciept")
         }
         finalConfirmation()
         
@@ -134,7 +163,9 @@ class ConfirmSupplierOrderVC: UIViewController {
         if(type == "deliverynote") {
             self.uploadedDeliveryPath = uploadPath
         }
-       
+        if(type == "paymentReciept") {
+            self.uploadedPaymentPath = uploadPath
+        }
         
         parameters = [
             "FileName": uploadPath
@@ -198,8 +229,8 @@ class ConfirmSupplierOrderVC: UIViewController {
         "OrderId":id,
        "CustomerId": userId,
         "InvoicePath":self.uplodedInvoicePath,
-       "DeliveryNotePath": uploadedDeliveryPath
-
+       "DeliveryNotePath": uploadedDeliveryPath,
+        "PaymentReceiptPath" : uploadedPaymentPath
     ] as [String : Any]
  
 
@@ -226,35 +257,37 @@ class ConfirmSupplierOrderVC: UIViewController {
     
     
     @IBAction func cameraAction(_ sender: Any) {
+        backView.isHidden = true
+        self.actionView.isHidden = true
+        
         switch self.selectedBtnVal {
         case 0:
-            backView.isHidden = true
-            self.actionView.isHidden = true
             pickerControllerInvoice.sourceType = .camera
             present(pickerControllerInvoice, animated: true)
-        default :
-            backView.isHidden = true
-            actionView.isHidden = true
+        case 1 :
             pickerControllerDeliveryNote.sourceType = .camera
             present(pickerControllerDeliveryNote, animated: true)
-        
+        default:
+            pickerControllerPaymentNote.sourceType = .camera
+            present(pickerControllerPaymentNote, animated: true)
         }
         
     }
     
     @IBAction func galary(_ sender: Any) {
+        backView.isHidden = true
+        actionView.isHidden = true
+       
         switch self.selectedBtnVal {
         case 0:
-            backView.isHidden = true
-            actionView.isHidden = true
             pickerControllerInvoice.sourceType = .photoLibrary
             present(pickerControllerInvoice, animated: true)
-        
-        default:
-            backView.isHidden = true
-            actionView.isHidden = true
+        case 1:
             pickerControllerDeliveryNote.sourceType = .photoLibrary
             present(pickerControllerDeliveryNote, animated: true)
+        default:
+            pickerControllerPaymentNote.sourceType = .photoLibrary
+            present(pickerControllerPaymentNote, animated: true)
         }
        
     }
@@ -275,7 +308,7 @@ extension ConfirmSupplierOrderVC: UINavigationControllerDelegate, UIImagePickerC
             }
             self.deliveryNoteImageView.image = image
             picker.dismiss(animated: true)
-        default:
+        case pickerControllerInvoice:
             let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
             var  imageName = UUID().uuidString
             imageName = imageName + ".jpg"
@@ -285,6 +318,17 @@ extension ConfirmSupplierOrderVC: UINavigationControllerDelegate, UIImagePickerC
                 try? jpegData.write(to: imagePath)
             }
             self.invoiceImageView.image = image
+            picker.dismiss(animated: true)
+        default:
+            let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
+            var  imageName = UUID().uuidString
+            imageName = imageName + ".jpg"
+            let imagePath = getDocumentsDirectory().appendingPathComponent(imageName)
+            self.pathPayment.append(imageName)
+            if let jpegData = image.jpegData(compressionQuality: 0.5) {
+                try? jpegData.write(to: imagePath)
+            }
+            self.paymentImageView.image = image
             picker.dismiss(animated: true)
         }
        

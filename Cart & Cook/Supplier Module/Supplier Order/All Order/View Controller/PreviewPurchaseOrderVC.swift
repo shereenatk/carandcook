@@ -96,41 +96,43 @@ class PreviewPurchaseOrderVC: UIViewController, UIDocumentInteractionControllerD
             var i = -1
             for item in items {
                 i = i + 1
-                if let id = item.itemID {
-                    guard let appDelegate =
-                      UIApplication.shared.delegate as? AppDelegate else {
-                        return
+//                if let id = item.itemID {
+                    
+                    let  name = item.productName ?? ""
+                    let  unit = item.unit ?? ""
+                    let total = item.price ?? 0.0
+                    let qty = item.weight ?? 0
+                    let singlePrice = total / qty
+                    
+                    let dict = [ "name" : name, "unit" : unit, "price" : singlePrice, "qty": qty, "total" : total] as [String : Any]
+                    if(name != "") {
+                        products.insert(dict, at: i)
                     }
-                    let managedContext =
-                      appDelegate.persistentContainer.viewContext
-                    let fetchRequest =
-                      NSFetchRequest<NSManagedObject>(entityName: "ProductList")
-                    do {
-                        let sort = NSSortDescriptor(key:"item", ascending:true)
-                        fetchRequest.sortDescriptors = [sort]
-                        fetchRequest.predicate = NSPredicate(format: "itemID = %@", "\(id)")
-                        let fetchItems = try managedContext.fetch(fetchRequest)
-                        let country = fetchItems[0].value(forKey: "country") as? String ?? ""
-                        let description =  fetchItems[0].value(forKey: "poductListModelDescription") as? String ?? ""
-                        let  name = item.productName ?? ""
-                        let  unit = item.unit ?? ""
-                        let singlePrice = item.price ?? 0.0
-                        let qty = item.weight ?? 0
-                        let total = singlePrice * Double(qty)
-                        
-                        let dict = [ "name" : name, "unit" : unit, "price" : singlePrice, "qty": qty, "total" : total] as [String : Any]
-                        if(name != "") {
-                            products.insert(dict, at: i)
-                        }
 
+//                    guard let appDelegate =
+//                      UIApplication.shared.delegate as? AppDelegate else {
+//                        return
+//                    }
+//                    let managedContext =
+//                      appDelegate.persistentContainer.viewContext
+//                    let fetchRequest =
+//                      NSFetchRequest<NSManagedObject>(entityName: "ProductList")
+//                    do {
+//                        let sort = NSSortDescriptor(key:"item", ascending:true)
+//                        fetchRequest.sortDescriptors = [sort]
+//                        fetchRequest.predicate = NSPredicate(format: "itemID = %@", "\(id)")
+//                        let fetchItems = try managedContext.fetch(fetchRequest)
+//                        let country = fetchItems[0].value(forKey: "country") as? String ?? ""
+//                        let description =  fetchItems[0].value(forKey: "poductListModelDescription") as? String ?? ""
+//
 
-                    } catch let error as NSError {
-                      print("Could not fetch. \(error), \(error.userInfo)")
-                    }
+//                    } catch let error as NSError {
+//                      print("Could not fetch. \(error), \(error.userInfo)")
+//                    }
                     var paymnetTerms = ""
 //                    print(products, "products")
                     if( self.supplierPaymnetTerms != "") {
-                        paymnetTerms =  "Payment Terms - " + "\n" + self.supplierPaymnetTerms
+                        paymnetTerms =  self.supplierPaymnetTerms
                     }
                     if let invoiceHTML = poComposer.renderInvoice(invoiceNumber: refNum, invoiceDate: podate,
                                                                        items: products,
@@ -146,7 +148,7 @@ class PreviewPurchaseOrderVC: UIViewController, UIDocumentInteractionControllerD
                                                                        delTime: "timeVal",
                                                                        sname: name
                                                                        ) {
-//                         print(invoiceHTML)
+                         print(invoiceHTML)
                         if let htmlPathURL = Bundle.main.url(forResource: "invoice", withExtension: "html"){
 
             //                           let html = try String(contentsOf: htmlPathURL, encoding: .utf8)
@@ -182,7 +184,7 @@ class PreviewPurchaseOrderVC: UIViewController, UIDocumentInteractionControllerD
 
                     }
 
-                }
+//                }
 
             }
         }

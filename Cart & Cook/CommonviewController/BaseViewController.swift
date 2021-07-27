@@ -627,7 +627,18 @@ extension UIViewController {
         
        
     }
-    
+     
+    public func outstangingAmountApi() -> [Double] {
+        let overDueVM = OverDueVM()
+        var outstanding = 0.0
+        var prepaidAmount = 0.0
+        overDueVM.getOverDueAmount(){  isSuccess, errorMessage  in
+            outstanding = overDueVM.responseStatus?.OutstandingAmount ?? 0.0
+             prepaidAmount = overDueVM.responseStatus?.PrepaidAmount ?? 0.0
+            
+        }
+        return[outstanding , prepaidAmount]
+    }
     
   public  func hideKeyboardWhenTappedAround() {
            let tapGesture = UITapGestureRecognizer(target: self,

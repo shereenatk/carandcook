@@ -17,6 +17,7 @@ class ViewOrderDetailsVC: UIViewController {
     var subTotalAmount = 0.0
     var vatamount = 0.0
     
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var attachmentImageView: UIImageView!
   
     @IBOutlet weak var backgroundView: UIView!
@@ -24,14 +25,53 @@ class ViewOrderDetailsVC: UIViewController {
     
     @IBOutlet weak var reviewCV: UICollectionView!
     let getobjectVM = GetObjectVM()
-    @IBOutlet weak var viewDeliverynoteBtn: UIButton!
-    @IBOutlet weak var viewInvoiceBtn: UIButton!
+    @IBOutlet weak var viewDeliverynoteBtn: UIButton!{
+        didSet{
+            viewDeliverynoteBtn.layer.cornerRadius = 5
+            viewDeliverynoteBtn.layer.borderWidth = 2
+            viewDeliverynoteBtn.layer.borderColor = AppColor.colorGreen.cgColor
+            viewDeliverynoteBtn.tintColor = AppColor.colorGreen.value
+            viewDeliverynoteBtn
+                .setTitleColor(AppColor.colorGreen.value, for: .normal)
+        }
+    }
+    @IBOutlet weak var viewInvoiceBtn: UIButton!{
+    didSet{
+        viewInvoiceBtn.layer.cornerRadius = 5
+        viewInvoiceBtn.layer.borderWidth = 2
+        viewInvoiceBtn.layer.borderColor = AppColor.colorGreen.cgColor
+        viewInvoiceBtn.tintColor = AppColor.colorGreen.value
+        viewInvoiceBtn.setTitleColor(AppColor.colorGreen.value, for: .normal)
+    }
+}
+
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var totalLabel: UILabel!
     @IBOutlet weak var vatLabel: UILabel!
     @IBOutlet weak var subTotalLabel: UILabel!
     @IBOutlet weak var suopplierNameLabel: UILabel!
     @IBOutlet weak var ordrIdLabel: UILabel!
+    
+    @IBOutlet weak var printBtn: UIButton!{
+        didSet{
+            printBtn.layer.cornerRadius = 5
+            printBtn.layer.borderWidth = 2
+            printBtn.layer.borderColor = AppColor.colorGreen.cgColor
+            printBtn.tintColor = AppColor.colorGreen.value
+            printBtn.setTitleColor(AppColor.colorGreen.value, for: .normal)
+        }
+    }
+    
+    @IBOutlet weak var paymentBtn: UIButton!{
+        didSet{
+            paymentBtn.layer.cornerRadius = 5
+            paymentBtn.layer.borderWidth = 2
+            paymentBtn.layer.borderColor = AppColor.colorGreen.cgColor
+            paymentBtn.tintColor = AppColor.colorGreen.value
+            paymentBtn.setTitleColor(AppColor.colorGreen.value, for: .normal)
+        }
+    }
+    
     override func viewDidLoad() {
         if let id = self.orderListM?.orderID  {
             ordrIdLabel.text = "ID #" + "\(id)"
@@ -48,6 +88,13 @@ class ViewOrderDetailsVC: UIViewController {
         dateLabel.text  = self.orderListM?.orderDate ?? ""
         suopplierNameLabel.text = self.orderListM?.supplierName ?? ""
         let deliveryNote = self.orderListM?.deliveryNotePath ?? ""
+        let paymentNote = self.orderListM?.paymentReceiptPath ?? ""
+        if(paymentNote != "") {
+           
+            self.paymentBtn.isHidden = false
+        } else {
+            self.paymentBtn.isHidden = true
+        }
         if(deliveryNote != "") {
            
             self.viewDeliverynoteBtn.isHidden = false
@@ -63,6 +110,9 @@ class ViewOrderDetailsVC: UIViewController {
         }
         reviewCV.reloadData()
     }
+    
+    
+    
     @IBOutlet weak var backBtn: UIButton!{
         didSet{
             backBtn.layer.cornerRadius = 15
@@ -70,6 +120,20 @@ class ViewOrderDetailsVC: UIViewController {
         }
     }
     
+    @IBAction func printOrder(_ sender: Any) {
+        
+        guard let window = UIApplication.shared.windows.first?.rootViewController as? AppLandingNC else {
+            return
+        }
+
+
+        if let vc =  UIStoryboard(name: "Supplier", bundle: nil).instantiateViewController(withIdentifier: "PreviewPurchaseOrderVC") as? PreviewPurchaseOrderVC {
+            vc.orderId = self.orderListM?.orderID  ?? 0
+            vc.supplierId = self.orderListM?.supplierID ?? 0
+            window.pushViewController(vc, animated:   true)
+        }
+          
+    }
     @IBAction func viewInvoice(_ sender: Any) {
         let invoiceNote = self.orderListM?.invoicePath ?? ""
         getImage(fileNAme: invoiceNote)
@@ -78,6 +142,11 @@ class ViewOrderDetailsVC: UIViewController {
     @IBAction func viewDeliveyNote(_ sender: Any) {
         let deliveryNote = self.orderListM?.deliveryNotePath ?? ""
             getImage(fileNAme: deliveryNote)
+    }
+    
+    @IBAction func viewPaymentReceipt(_ sender: Any) {
+        let paymentNote = self.orderListM?.paymentReceiptPath ?? ""
+        getImage(fileNAme: paymentNote)
     }
     
     @IBAction func backAction(_ sender: Any) {
@@ -92,6 +161,7 @@ class ViewOrderDetailsVC: UIViewController {
         
     }
     private func getImage(fileNAme : String) {
+        self.activityIndicator.startAnimating()
         getobjectVM.getObjectData(fileNAme: fileNAme) {  isSuccess, errorMessage  in
             if let  byte = self.getobjectVM.responseStatus?.fileBytes {
                 var encoded64 = byte
@@ -103,11 +173,19 @@ class ViewOrderDetailsVC: UIViewController {
                 }
                 let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
                 let decodedimage = UIImage(data: dataDecoded, scale: 0.5)
-               
-                self.attachmentImageView.image = decodedimage
-                self.attachmentImageView.isHidden = false
-                self.backgroundView.isHidden = false
-                self.closeBtn.isHidden = false
+                self.activityIndicator.stopAnimating()
+//                self.attachmentImageView.image = decodedimage
+                if let vc =  UIStoryboard(name: "Supplier", bundle: nil).instantiateViewController(withIdentifier: "FullscreenImageVC") as? FullscreenImageVC {
+                    vc.image = decodedimage ?? UIImage()
+                    self.navigationController?.pushViewController(vc, animated:   false)
+
+                }
+                
+                
+                
+//                self.attachmentImageView.isHidden = false
+//                self.backgroundView.isHidden = false
+//                self.closeBtn.isHidden = false
             }
            
         }
