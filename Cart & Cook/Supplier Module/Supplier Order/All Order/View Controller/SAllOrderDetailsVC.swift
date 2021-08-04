@@ -104,7 +104,7 @@ class SAllOrderDetailsVC: UIViewController , UIDocumentInteractionControllerDele
     
     func renderInvoice(invoiceNumber: String, invoiceDate: String,  items: [[String: Any]], totalAmount: Double,
                        subtotal: Double,
-                       vat: Double,mailsupplier: String, supplierPhone: String,paymentTErms: String, paymentMethod: String, address: String, phone: String, delDate: String, delTime: String, sname: String) -> String! {
+                       vat: Double,mailsupplier: String, supplierPhone: String,paymentTErms: String, paymentMethod: String, address: String, phone: String, delDate: String, delTime: String, sname: String, comments: String) -> String! {
                 
                 self.invoiceNumber = invoiceNumber
              
@@ -127,6 +127,13 @@ class SAllOrderDetailsVC: UIViewController , UIDocumentInteractionControllerDele
      //            HTMLContent = HTMLContent.replacingOccurrences(of: "#LOGO_IMAGE#", with: logoImageURL)
 
                     // Invoice number.
+                    if(comments == "") {
+                        HTMLContent = HTMLContent.replacingOccurrences(of: "#NOTE#", with: "")
+                     HTMLContent = HTMLContent.replacingOccurrences(of: "#NOTE VALUE#", with: "")
+                    } else {
+                        HTMLContent = HTMLContent.replacingOccurrences(of: "#NOTE#", with: "Note -")
+                     HTMLContent = HTMLContent.replacingOccurrences(of: "#NOTE VALUE#", with: comments)
+                    }
                     HTMLContent = HTMLContent.replacingOccurrences(of: "#DELIVERYRNAME#", with: rname)
                  HTMLContent = HTMLContent.replacingOccurrences(of: "#PO_NUMBER#", with: invoiceNumber)
                  HTMLContent = HTMLContent.replacingOccurrences(of: "#SNAME#", with: sname)

@@ -11,9 +11,33 @@ import CoreData
 class CheckoutVC: UIViewController {
     var tableItems: [NSManagedObject] = []
     var isSelectedIndex = 0
-    var addressId = 0
+    var addressId = UserDefaults.standard.value(forKey: ADDRESSID) as? Int ?? 0
     var time = ""
     var fromVc = ""
+    
+    @IBOutlet weak var addressBtn: UIButton!{
+        didSet{
+            addressBtn.backgroundColor = AppColor.colorPrimary.value
+            addressBtn.layer.borderColor = AppColor.borderColor.cgColor
+            addressBtn.layer.borderWidth = 2
+        }
+    }
+    @IBOutlet weak var reViewBtn: UIButton!{
+        didSet{
+            reViewBtn.backgroundColor = .white
+            reViewBtn.layer.borderColor = AppColor.borderColor.cgColor
+            reViewBtn.layer.borderWidth = 2
+        }
+    }
+    @IBOutlet weak var paymnetBtn: UIButton!{
+        didSet{
+            paymnetBtn.backgroundColor = .white
+            paymnetBtn.layer.borderColor = AppColor.borderColor.cgColor
+            paymnetBtn.layer.borderWidth = 2
+        }
+    }
+    
+    
     @IBOutlet weak var timeSlotVC: UICollectionView!
     @IBOutlet weak var addressAddBtn: UIButton!{
         didSet{

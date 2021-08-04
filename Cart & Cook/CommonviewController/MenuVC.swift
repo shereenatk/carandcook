@@ -31,6 +31,7 @@ class MenuVC: UIViewController {
     @IBOutlet weak var topbtnView: UIView!
     @IBOutlet weak var logoutBtn: UIButton!
     let group = DispatchGroup()
+    
 override func viewDidLoad() {
     super.viewDidLoad()
    

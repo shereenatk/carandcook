@@ -49,11 +49,11 @@ class OverViewVC: UIViewController, UITextFieldDelegate, UIDocumentInteractionCo
     let datePicker2 = UIDatePicker()
     @IBOutlet weak var expensechartView: BarChartView!{
         didSet{
-            expensechartView.legend.enabled = false
-            expensechartView.isUserInteractionEnabled = true
-            expensechartView.frame.size = CGSize(width: 125, height: 150)
-            expensechartView.animate(xAxisDuration: 1)
-            expensechartView.animate(yAxisDuration: 1)
+//            expensechartView.legend.enabled = false
+//            expensechartView.isUserInteractionEnabled = true
+//            expensechartView.frame.size = CGSize(width: 125, height: 150)
+//            expensechartView.animate(xAxisDuration: 1)
+//            expensechartView.animate(yAxisDuration: 1)
             
         }
        
@@ -73,7 +73,7 @@ class OverViewVC: UIViewController, UITextFieldDelegate, UIDocumentInteractionCo
     let pathToSOASupplierLastItemHTMLTemplate =  Bundle.main.path(forResource: "SOASuplierLastItem", ofType: "html")
     
     let pickerView = ToolbarPickerView()
-    let Menu = ["Daily", "Weekly", "Monthly", "Yearly"]
+    let Menu = ["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]
     var startDate = ""
     var endDate = ""
     var selectedIdex = 0
@@ -81,11 +81,13 @@ class OverViewVC: UIViewController, UITextFieldDelegate, UIDocumentInteractionCo
     var currentDate = Calendar.current.startOfDay(for: Date())
     let dateFormatter = DateFormatter()
     let cal = NSCalendar.current
-    let expenseColorList = [AppColor.chartGreen.value]
+    let ccColorList = [AppColor.chartGreen.value]
+    let spColorList = [AppColor.chartRed.value]
     let productColorList = [AppColor.chartClr1.value]
     let colorList = [AppColor.chartClr1.value] + [AppColor.chartClr2.value] + [AppColor.chartClr3.value] + [AppColor.chartClr4.value] + [AppColor.chartClr5.value] + [AppColor.chartClr6.value] + [AppColor.chartClr7.value] + [AppColor.chartClr8.value] + [AppColor.chartClr9.value] + [AppColor.chartClr10.value] + [AppColor.chartClr11.value] + [AppColor.chartClr12.value] + [AppColor.chartClr13.value] + [AppColor.chartClr14.value] + [AppColor.chartClr15.value]
     var xValues: [String] = []
     var yValues: [Double] = []
+    var yValues2: [Double] = []
     var productxValues: [String] = []
     var productyValues: [Double] = []
     
@@ -302,18 +304,40 @@ class OverViewVC: UIViewController, UITextFieldDelegate, UIDocumentInteractionCo
             
             let totalerexp =  self.overViewVM.responseStatus?.result?.expense?.totalExpense ?? 0.0
             self.totalExpValLabel.text = "AED " + "\(totalerexp)"
-            
+            self.xValues = []
+            self.yValues = []
+            self.yValues2 = []
             if let charts = self.overViewVM.responseStatus?.result?.chartData {
+//                print(charts)
                 for chart in charts {
                     if let  xVal = chart.xValue {
                         
-                        self.xValues.append(String(xVal.prefix(5)))
+                        if(type.lowercased() == "weekly" ||  type.lowercased() == "daily") {
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "dd/MM/yyyy"
+                            if let date = dateFormatter.date(from: xVal)  {
+                                dateFormatter.dateFormat = "dd/MM"
+                                let day = dateFormatter.string(from: date)
+                                self.xValues.append(day)
+                            }
+                            
+                            
+                           
+                        } else {
+                            self.xValues.append(xVal)
+                        }
+                        
+                       
                     }
-                    if let  yVal = chart.yValue {
-                        self.yValues.append(yVal)
+                    if let  yVal1 = chart.ccValue {
+                        self.yValues.append(yVal1)
+                    }
+                    if let  yVal2 = chart.supplierValue {
+                        self.yValues2.append(yVal2)
                     }
                 }
-                self.customizeChart(dataPoints: charts, values: self.yValues)
+                print(self.yValues, self.yValues2)
+                self.customizeChart(dataPoints: charts, values: self.yValues, values2: self.yValues2)
                 self.setupExpenseChart()
                 
             }
@@ -376,74 +400,123 @@ class OverViewVC: UIViewController, UITextFieldDelegate, UIDocumentInteractionCo
     }
     
     private func setupExpenseChart() {
+        
         expensechartView.delegate = self
-        expensechartView.scaleXEnabled = true
-        expensechartView.scaleYEnabled = false
-        expensechartView.highlightPerTapEnabled = true
-        expensechartView.dragEnabled = true
-        expensechartView.fitBars = true
-        expensechartView.drawValueAboveBarEnabled = true
-        expensechartView.animate(yAxisDuration: 0.5)
-        expensechartView.legend.enabled = false
-        expensechartView.legend.drawInside = true
+        expensechartView.noDataText = "No Data Available."
 
-           // Chart Offset
-           expensechartView.setExtraOffsets(left: 10, top: 0, right: 20, bottom: 50)
-           
-           // Animation
-           expensechartView.animate(yAxisDuration: 1.5 , easingOption: .easeOutBounce)
 
-           // Setup X axis
-           let xAxis = expensechartView.xAxis
-           xAxis.labelPosition = .bottom
-           xAxis.drawAxisLineEnabled = true
-           xAxis.drawGridLinesEnabled = false
-           xAxis.granularityEnabled = false
-           xAxis.labelRotationAngle = -25
-        xAxis.valueFormatter = IndexAxisValueFormatter(values: self.xValues)
-           xAxis.axisLineColor = .black
-           xAxis.labelTextColor = .black
-           let rightAxis = expensechartView.rightAxis
-           rightAxis.enabled = false
-        xAxis.granularity = 1.0
+      //legend
+      let legend = expensechartView.legend
+      legend.enabled = true
+        legend.horizontalAlignment = .right
+        legend.verticalAlignment = .top
+        legend.orientation = .horizontal
+      legend.drawInside = true
+        legend.yOffset = 0.0;
+        legend.xOffset = 0.0;
+        legend.yEntrySpace = 0.0;
+
+        
+        
+//        let legend = expensechartView.legend
+//        Legend l1 = purchaseChart.getLegend();
+//        l1.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+//        l1.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+//        l1.setOrientation(Legend.LegendOrientation.VERTICAL);
+//        l1.setDrawInside(true);
+//        l1.setYOffset(0f);
+//        l1.setXOffset(10f);
+//        l1.setYEntrySpace(0f);
+//        l1.setTextSize(8f);
+//
+        
+
+      let xaxis = expensechartView.xAxis
+      xaxis.drawGridLinesEnabled = true
+      xaxis.labelPosition = .bottom
+      xaxis.centerAxisLabelsEnabled = true
+      xaxis.valueFormatter = IndexAxisValueFormatter(values:self.xValues)
+      xaxis.granularity = 1
+
+
+      let leftAxisFormatter = NumberFormatter()
+      leftAxisFormatter.maximumFractionDigits = 1
+
+      let yaxis = expensechartView.leftAxis
+      yaxis.spaceTop = 0.35
+      yaxis.axisMinimum = 0
+      yaxis.drawGridLinesEnabled = false
+        yaxis.labelPosition = .outsideChart
+        expensechartView.rightAxis.enabled = false
+        
+
     }
     
-    func customizeChart(dataPoints: [ChartDatum], values: [Double]) {
-      // TO-DO: customize the chart here
-        // 1. Set ChartDataEntry
-        var dataEntries: [ChartDataEntry] = []
-        for i in 0..<dataPoints.count  {
-            let date = dataPoints[i].xValue ?? ""
-            let ccval = dataPoints[i].ccValue ?? 0.0
-            let suplier = dataPoints[i].supplierValue ?? 0.0
-           let ccvalStr = "\n" + "C & C    :" + "\(ccval)"
-           let suplierStr  = "\n" + "Supplier :" + "\(suplier)"
-            let datastring = date + ccvalStr + suplierStr
-            
-          let dataEntry = BarChartDataEntry(x: Double(i), y: values[i], data: datastring)
-          dataEntries.append(dataEntry)
-        }
-        // 2. Set ChartDataSet
-        let barchartDataset = BarChartDataSet(entries: dataEntries, label: nil)
-        barchartDataset.colors = self.expenseColorList
-        let barChartData = BarChartData(dataSet: barchartDataset)
-        let format = NumberFormatter()
-        format.numberStyle = .none
+    func customizeChart(dataPoints: [ChartDatum], values: [Double], values2: [Double]) {
         
-        let formatter = DefaultValueFormatter(formatter: format)
-        barChartData.setValueFormatter(formatter)
-        barChartData.setValueTextColor(NSUIColor.clear)
-        barChartData.barWidth = 1
-//        barChartData.groupBars(fromX: <#T##Double#>, groupSpace: <#T##Double#>, barSpace: <#T##Double#>)
-        self.expensechartView.data = barChartData
-        expensechartView.drawValueAboveBarEnabled = true
-        let marker = ChartMarker()
-        marker.chartView = self.expensechartView
-        self.expensechartView.marker = marker
-        
-        self.expensechartView.data = barChartData
-        self.expensechartView.drawMarkers = true
-        self.expensechartView.xAxis.axisMaximum = Double(dataEntries.count) - 0.5
+        var dataEntries: [BarChartDataEntry] = []
+               var dataEntries1: [BarChartDataEntry] = []
+        var dataEntries2: [ChartDataEntry] = []
+               for i in 0..<values.count {
+                let date = dataPoints[i].xValue ?? ""
+                  let ccval = dataPoints[i].ccValue ?? 0.0
+                  let suplier = dataPoints[i].supplierValue ?? 0.0
+                 let ccvalStr = "\n" + "C & C    :" + "\(ccval)"
+                 let suplierStr  = "\n" + "Supplier :" + "\(suplier)"
+                  let datastring = date + ccvalStr + suplierStr
+      
+//                        let dataEntry = BarChartDataEntry(x: Double(i), y: values[i], data: datastring)
+//                        dataEntries.append(dataEntry)
+              
+                          let dataEntry1 = BarChartDataEntry(x: Double(i), y: values[i], data: datastring)
+                          let dataEntry2 = BarChartDataEntry(x: Double(i), y: values2[i], data: datastring)
+                          dataEntries.append(dataEntry1)
+                          dataEntries2.append(dataEntry2)
+                  
+
+               }
+
+        let barchartDataset1 = BarChartDataSet(entries: dataEntries, label: "C-C Expenses")
+           let barchartDataset2 = BarChartDataSet(entries: dataEntries2, label:  "Supplier Expenses")
+           let dataSets: [BarChartDataSet] = [barchartDataset1,barchartDataset2]
+           barchartDataset1.colors = self.ccColorList
+           barchartDataset2.colors = self.spColorList
+
+               let chartData = BarChartData(dataSets: dataSets)
+
+
+               let groupSpace = 0.3
+               let barSpace = 0.05
+               let barWidth = 0.3
+               // (0.3 + 0.05) * 2 + 0.3 = 1.00 -> interval per "group"
+
+               let groupCount = values.count
+               let startYear = 0
+
+
+               chartData.barWidth = barWidth;
+               expensechartView.xAxis.axisMinimum = Double(startYear)
+               let gg = chartData.groupWidth(groupSpace: groupSpace, barSpace: barSpace)
+              
+        expensechartView.xAxis.axisMaximum = Double(startYear) + gg * Double(groupCount)
+
+               chartData.groupBars(fromX: Double(startYear), groupSpace: groupSpace, barSpace: barSpace)
+               //chartData.groupWidth(groupSpace: groupSpace, barSpace: barSpace)
+        expensechartView.notifyDataSetChanged()
+
+        expensechartView.data = chartData
+
+
+
+
+
+
+//               background color
+//        expensechartView.backgroundColor = UIColor(red: 189/255, green: 195/255, blue: 199/255, alpha: 1)
+
+               //chart animation
+        expensechartView.animate(xAxisDuration: 1.5, yAxisDuration: 1.5, easingOption: .linear)
+
     }
     
     func customizeItemWiseChart(dataPoints: [ExpenseProduct], values: [Double]) {
@@ -641,7 +714,7 @@ class OverViewVC: UIViewController, UITextFieldDelegate, UIDocumentInteractionCo
            UIGraphicsEndPDFContext()
            let path = "\(NSTemporaryDirectory())\(filename).pdf"
            pdfData.write(toFile: path, atomically: true)
-           print("open \(path)")
+//           print("open \(path)")
            
            return path
        }
@@ -830,6 +903,6 @@ extension OverViewVC: ChartViewDelegate
     
     public func chartValueNothingSelected(_ expensechartView: ChartViewBase)
     {
-        print("chartValueNothingSelected")
+//        print("chartValueNothingSelected")
     }
 }

@@ -18,6 +18,7 @@ class SearchViewController: UIViewController , UISearchBarDelegate, UITextFieldD
     var tableItems : [NSManagedObject] = []
     var quality = ""
     var getobjectVM = GetObjectVM()
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     @IBOutlet weak var errorImage: UIImageView!
     @IBOutlet weak var categoryListCV: UICollectionView!
     @IBOutlet weak var searchBar: UISearchBar!{
@@ -78,6 +79,7 @@ class SearchViewController: UIViewController , UISearchBarDelegate, UITextFieldD
 
                 dropButton.selectionAction = { [unowned self] (index: Int, item: String) in
 //                    print("Selected item: \(item) at index: \(index)") //Selected item: code at index: 0
+                    self.searchBar.text = item
                     getResultProductList(name: item)
                 }
         } catch let error as NSError {
@@ -99,7 +101,7 @@ class SearchViewController: UIViewController , UISearchBarDelegate, UITextFieldD
         do {
             let sort = NSSortDescriptor(key:"item", ascending:true)
             fetchRequest.sortDescriptors = [sort]
-            fetchRequest.predicate = NSPredicate(format: "item = %@", "\(name)")
+            fetchRequest.predicate = NSPredicate(format: "item contains[c] %@", "\(name)")
             let items = try managedContext.fetch(fetchRequest)
             for item in items {
                 if let status =  item.value(forKey: "status") as? String{
@@ -127,13 +129,23 @@ class SearchViewController: UIViewController , UISearchBarDelegate, UITextFieldD
           print("Could not fetch. \(error), \(error.userInfo)")
         }
         categoryListCV.reloadData()
+        dropButton.hide()
+        self.searchBar.resignFirstResponder()
         if(self.tableItems.count <= 0) {
             self.errorImage.isHidden = false
         } else {
             self.errorImage.isHidden = true
         }
     }
-   
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        if let item = searchBar.searchTextField.text {
+            
+            getResultProductList(name: item)
+            self.searchBar.resignFirstResponder()
+            
+        }
+       
+    }
 }
 
 extension  SearchViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout  {
@@ -189,34 +201,72 @@ extension  SearchViewController: UICollectionViewDelegate, UICollectionViewDataS
 //            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
 ////           cell.activityIndicator.stopAnimating()
 //        }
-        
-        if(isConnectedToInternet()) {
-            if let file_path = self.tableItems[indexPath.row].value(forKey: "image") as? String  {
-                DispatchQueue.main.async {
-                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
-                            var  fileBytes  = ""
-                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
-                            var encoded64 = byte
-                            let remainder = encoded64.count % 4
-                            if remainder > 0 {
-                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
-                                                              withPad: "=",
-                                                              startingAt: 0)
-                            }
-                            let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
-                            let decodedimage = UIImage(data: dataDecoded, scale: 1)
-
-                            cell.productImage.image = decodedimage
-                        }
-
-                    }
-                }
-            }
-
-        }
-     
         var itemID = 0
         itemID = self.tableItems[indexPath.row].value(forKey: "itemID") as? Int ?? 0
+        let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data ??  Data()
+           if(byted.count == 0) {
+               if(isConnectedToInternet()) {
+                   if let file_path = self.tableItems[indexPath.row].value(forKey: "actualImage") as? String  {
+                   
+                           self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
+                                   var  fileBytes  = ""
+                               if let  byte = self.getobjectVM.responseStatus?.fileBytes {
+
+                                   var encoded64 = byte
+                                   let remainder = encoded64.count % 4
+                                   if remainder > 0 {
+                                       encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
+                                                                     withPad: "=",
+                                                                     startingAt: 0)
+                                   }
+                                   DispatchQueue.main.async {
+                                       let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
+                                       let decodedimage = UIImage(data: dataDecoded, scale: 0.7)
+       //                                if let updateCell = self.categoryListCV.cellForItem(at: indexPath){
+                                           cell.productImage.image = decodedimage
+       //                                }
+                                       let managedContext =
+                                           self.appDelegate.persistentContainer.viewContext
+                                       var attributeArray : [NSPredicate] = []
+                                       let fetchRequest =
+                                         NSFetchRequest<NSManagedObject>(entityName: "ProductList")
+                                       
+                                       do {
+                                           fetchRequest.predicate = NSPredicate(format: "itemID = %@", "\(itemID)")
+
+                                           let result = try? managedContext.fetch(fetchRequest)
+                   //                        print(result?.count, result)
+                                           if(result?.count == 1) {
+                                               let dic = result![0]
+                                           dic.setValue(dataDecoded, forKey: "thumbnail")
+                                               try managedContext.save()
+                                           }
+                   //                        if(index == homecount - 1) {
+                   ////                           print( "DB Updated")
+                   ////                            self.refreshControl.endRefreshing()
+                   //                        }
+
+                                       } catch let error as NSError {
+                                                     print("Could not fetch. \(error), \(error.userInfo)")
+                                       }
+
+                                   }
+
+                               }
+
+                           }
+
+                   }
+
+               }
+           } else {
+               let decodedimage = UIImage(data: byted, scale: 0.7)
+//                                if let updateCell = self.categoryListCV.cellForItem(at: indexPath){
+                   cell.productImage.image = decodedimage
+//                                }
+           }
+     
+       
         if let cartCount = self.getCartCount(id: itemID) {
             if(cartCount > 0) {
                 cell.subButton.isHidden = false
@@ -258,6 +308,14 @@ extension  SearchViewController: UICollectionViewDelegate, UICollectionViewDataS
       
             self.updateCartCount(id: itemID, count: qty, quality: self.quality)
                   }
+        cell.clickEvent =  { cell in
+            if let vc =  UIStoryboard(name: "Productdetails", bundle: nil).instantiateViewController(withIdentifier: "ProductDetailsVC") as? ProductDetailsVC {
+                vc.itemId = cell.id
+                vc.image = cell.productImage.image
+                self.navigationController?.pushViewController(vc, animated:   true)
+
+            }
+        }
         return cell
     }
     
@@ -265,18 +323,18 @@ extension  SearchViewController: UICollectionViewDelegate, UICollectionViewDataS
    
     
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-
-        guard let cell = collectionView.cellForItem(at: indexPath) as? ProductListCVCell else {
-                                       return
-                                   }
-        if let vc =  UIStoryboard(name: "Productdetails", bundle: nil).instantiateViewController(withIdentifier: "ProductDetailsVC") as? ProductDetailsVC {
-            vc.itemId = cell.id
-            vc.image = cell.productImage.image
-            self.navigationController?.pushViewController(vc, animated:   true)
-
-        }
-       }
+//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//
+//        guard let cell = collectionView.cellForItem(at: indexPath) as? ProductListCVCell else {
+//                                       return
+//                                   }
+//        if let vc =  UIStoryboard(name: "Productdetails", bundle: nil).instantiateViewController(withIdentifier: "ProductDetailsVC") as? ProductDetailsVC {
+//            vc.itemId = cell.id
+//            vc.image = cell.productImage.image
+//            self.navigationController?.pushViewController(vc, animated:   true)
+//
+//        }
+//       }
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -333,6 +391,7 @@ extension SearchViewController {
     }
 
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        dropButton.show()
         searchBar.setShowsCancelButton(true, animated: true)
         for ob: UIView in ((searchBar.subviews[0] )).subviews {
             if let z = ob as? UIButton {
@@ -351,5 +410,6 @@ extension SearchViewController {
         searchBar.text = ""
         dataFiltered = data
         dropButton.hide()
+        self.searchBar.resignFirstResponder()
     }
 }

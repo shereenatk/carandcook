@@ -155,14 +155,12 @@ extension UIViewController {
    
     
     public func setupSideMenu() {
-
            guard let sidemenunavcontroller = UIStoryboard(name: "Menu", bundle: nil).instantiateViewController(withIdentifier: "slidermenunc") as? SideMenuNavigationController else { return }
-             
-             sidemenunavcontroller.settings = self.makeSettings()
-                 SideMenuManager.default.rightMenuNavigationController = nil
-                 SideMenuManager.default.leftMenuNavigationController =  sidemenunavcontroller
-                 sidemenunavcontroller.leftSide = true
-       }
+         sidemenunavcontroller.settings = self.makeSettings()
+         SideMenuManager.default.rightMenuNavigationController = nil
+         SideMenuManager.default.leftMenuNavigationController =  sidemenunavcontroller
+         sidemenunavcontroller.leftSide = true
+    }
     
     
     public func isUserNameValid(_ userName: String) -> Bool {
@@ -628,17 +626,7 @@ extension UIViewController {
        
     }
      
-    public func outstangingAmountApi() -> [Double] {
-        let overDueVM = OverDueVM()
-        var outstanding = 0.0
-        var prepaidAmount = 0.0
-        overDueVM.getOverDueAmount(){  isSuccess, errorMessage  in
-            outstanding = overDueVM.responseStatus?.OutstandingAmount ?? 0.0
-             prepaidAmount = overDueVM.responseStatus?.PrepaidAmount ?? 0.0
-            
-        }
-        return[outstanding , prepaidAmount]
-    }
+  
     
   public  func hideKeyboardWhenTappedAround() {
            let tapGesture = UITapGestureRecognizer(target: self,

@@ -4,7 +4,7 @@
 //
 //  Created by Development  on 19/05/2021.
 //
-
+import Siren 
 import UIKit
 import CoreData
 @main
@@ -14,6 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        Siren.shared.wail()
         UINavigationBar.appearance().barTintColor = AppColor.colorPrimary.value
               
               // Set Navigation bar Title colour

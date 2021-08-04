@@ -162,6 +162,7 @@ class OrderDetailsVC: UIViewController , UIDocumentInteractionControllerDelegate
                HTMLContent =  HTMLContent.replacingOccurrences(of: "#INVOICE_DATE#", with: invoiceDate)
 
                // Due date (we leave it blank by default).
+            HTMLContent =  HTMLContent.replacingOccurrences(of: "#CUSTOMERNAME#", with: customerName)
                HTMLContent =  HTMLContent.replacingOccurrences(of: "#DELIVERYRNAME#", with: rname)
             HTMLContent =  HTMLContent.replacingOccurrences(of: "#DELIVERYBRANDNAME#", with: brand)
             HTMLContent =  HTMLContent.replacingOccurrences(of: "#CUSTOMERPHONE#", with: num)
@@ -173,7 +174,7 @@ class OrderDetailsVC: UIViewController , UIDocumentInteractionControllerDelegate
             HTMLContent =  HTMLContent.replacingOccurrences(of: "#DELIVERYDATE#", with: "Delivery Date :" + delDate)
             HTMLContent =  HTMLContent.replacingOccurrences(of: "#DELIVERYTIME#", with: "Delivery Time :" + delTime)
                // Sender info.
-               HTMLContent =  HTMLContent.replacingOccurrences(of: "#VAT#", with: "AED " + String(format: "%.2f", ceil(vat*100)/100))
+               HTMLContent =  HTMLContent.replacingOccurrences(of: "#VAT#", with: "AED 100" + String(format: "%.2f", ceil(vat*100)/100))
             HTMLContent =  HTMLContent.replacingOccurrences(of: "#SUBTOTAL#", with: "AED " + String(format: "%.2f", ceil(subtotal*100)/100))
             
 
@@ -182,33 +183,44 @@ class OrderDetailsVC: UIViewController , UIDocumentInteractionControllerDelegate
 
             // The invoice items will be added by using a loop.
                   var allItems = ""
+            for i in 0..<items.count  {
+                var itemHTMLContent: String!
 
-                  // For all the items except for the last one we'll use the "single_item.html" template.
-                  // For the last one we'll use the "last_item.html" template.
-                  for i in 0..<items.count  {
-                      var itemHTMLContent: String!
+                    itemHTMLContent = try String(contentsOfFile: pathToLastItemHTMLTemplate!)
+                itemHTMLContent = itemHTMLContent.replacingOccurrences(of:"#CATEGOTY#", with: items[i]["category"] as? String ?? "")
+                
+                var productItems = ""
+                var subCatTotal = 0.0
+                if let products = items[i]["items"] as? [[String: Any]] {
+                    for i in 0..<products.count  {
+                        var itemProductHTMLContent: String!
 
-                          itemHTMLContent = try String(contentsOfFile: pathToLastItemHTMLTemplate!)
-                    
-                    let singlePrice = items[i]["price"] as? Double ?? 0.0
-                    let qty = items[i]["qty"] as? Double ?? 0.0
-                    let total = items[i]["total"] as? Double ?? 0.0
-                     let discription = items[i]["description"] as? String ?? ""
-                    itemHTMLContent = itemHTMLContent.replacingOccurrences(of:"#NAME#", with: items[i]["name"] as? String ?? "")
-                    itemHTMLContent = itemHTMLContent.replacingOccurrences(of: "#UNIT#", with:  items[i]["unit"] as? String ?? "")
-                    itemHTMLContent = itemHTMLContent.replacingOccurrences(of: "#PRICE#", with: String(format: "%.2f", ceil(singlePrice*100)/100) )
-                    itemHTMLContent = itemHTMLContent.replacingOccurrences(of: "#QTY#", with: "\(qty)" )
-                    itemHTMLContent = itemHTMLContent.replacingOccurrences(of: "#TOTAL#", with: String(format: "%.2f", ceil(total*100)/100) )
-                    itemHTMLContent = itemHTMLContent.replacingOccurrences(of: "#COUNTRY#", with:  items[i]["country"] as? String ?? "")
-                    itemHTMLContent = itemHTMLContent.replacingOccurrences(of: "#DESCRIPTION#", with: "(" +  discription  + ")")
+                        itemProductHTMLContent = try String(contentsOfFile: pathToSingleItemHTMLTemplate!)
+                        
+                        let singlePrice = products[i]["price"] as? Double ?? 0.0
+                      let qty = products[i]["qty"] as? Double ?? 0.0
+                      let total = products[i]["total"] as? Double ?? 0.0
+                        subCatTotal = subCatTotal + total
+                       let discription = products[i]["description"] as? String ?? ""
+                        itemProductHTMLContent = itemProductHTMLContent.replacingOccurrences(of:"#NAME#", with: products[i]["name"] as? String ?? "")
+                        itemProductHTMLContent = itemProductHTMLContent.replacingOccurrences(of: "#UNIT#", with:  products[i]["unit"] as? String ?? "")
+                        itemProductHTMLContent = itemProductHTMLContent.replacingOccurrences(of: "#PRICE#", with: String(format: "%.2f", ceil(singlePrice*100)/100) )
+                        itemProductHTMLContent = itemProductHTMLContent.replacingOccurrences(of: "#QTY#", with: "\(qty)" )
+                        itemProductHTMLContent = itemProductHTMLContent.replacingOccurrences(of: "#TOTAL#", with: String(format: "%.2f", ceil(total*100)/100) )
+                        itemProductHTMLContent = itemProductHTMLContent.replacingOccurrences(of: "#COUNTRY#", with:  products[i]["country"] as? String ?? "")
+                        itemProductHTMLContent = itemProductHTMLContent.replacingOccurrences(of: "#DESCRIPTION#", with: "(" +  discription  + ")")
+                        
+                        productItems += itemProductHTMLContent
+                    }
 
-                      allItems += itemHTMLContent
-                  }
-
-                  // Set the items.
-            HTMLContent = HTMLContent.replacingOccurrences(of: "#ITEMS#", with: allItems)
-
-                  // The HTML code is ready.
+                    // Set the items.
+                    itemHTMLContent = itemHTMLContent.replacingOccurrences(of: "#SUBLIST#", with: productItems)
+                }
+                itemHTMLContent = itemHTMLContent.replacingOccurrences(of:"#SINGLETOTAL#", with: String(format: "%.2f", ceil(subCatTotal*100)/100))
+                allItems += itemHTMLContent
+            }
+      HTMLContent = HTMLContent.replacingOccurrences(of: "#ITEMS#", with: allItems)
+           
                   return HTMLContent
 
            }

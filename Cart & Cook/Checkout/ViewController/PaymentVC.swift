@@ -21,7 +21,7 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
     var savedCardVM = SavedCardVM()
     var savedCardM : SavedCardsModel?
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var backAction: UIButton!
+
     var total = "0"
     var totalAmount = 0.0
     var vat = "0"
@@ -63,7 +63,7 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
         vatLabel.text = vat
        
         getAddrss()
-        getSavedCardLists()
+    
         
         
         
@@ -74,6 +74,25 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
 
            let configuration = WKWebViewConfiguration()
            configuration.userContentController = contentController
+        
+           // JavaScript to inject
+//           let src = """
+//           document.body.insertAdjacentHTML('beforebegin',"<header><meta
+//           name='viewport' content='width=device-width, initial-scale=1.0,
+//           maximum-scale=1.0, minimum-scale=1.0, user-scalable=no'>
+//           </header>");
+//           """
+//           let script = WKUserScript(source: src,
+//                                     injectionTime: .atDocumentStart,
+//                                     forMainFrameOnly: false)
+//        contentController.addUserScript(script)
+           
+        
+        
+        
+        
+        
+        
 
            self.webView = WKWebView( frame: CGRect(x: 10, y: 200, width: self.view.bounds.size.width - 30 , height: self.view.bounds.size.height - 250), configuration: configuration)
         self.webView.contentMode = .scaleAspectFit
@@ -88,6 +107,7 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
            self.view.addSubview(self.webView!)
     }
     
+    
 //    private func getWKWebViewConfiguration() -> WKWebViewConfiguration {
 //           let userController = WKUserContentController()
 //           userController.add(self, name: "observer")
@@ -95,6 +115,37 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
 //           configuration.userContentController = userController
 //           return configuration
 //       }
+    override func viewWillAppear(_ animated: Bool) {
+        getSavedCardLists()
+    }
+    @IBAction func backAction(_ sender: Any) {
+        self.navigationController?.popViewController(animated: true)
+    }
+    @IBOutlet weak var reViewBtn: UIButton!{
+        didSet{
+            
+            reViewBtn.backgroundColor = .white
+            reViewBtn.layer.borderColor = AppColor.borderColor.cgColor
+            reViewBtn.layer.borderWidth = 2
+        }
+    }
+    @IBOutlet weak var paymnetBtn: UIButton!{
+        didSet{
+            paymnetBtn.backgroundColor = AppColor.colorPrimary.value
+            paymnetBtn.layer.borderColor = AppColor.borderColor.cgColor
+            paymnetBtn.layer.borderWidth = 2
+        }
+    }
+    
+    
+    @IBOutlet weak var addressBtn: UIButton!{
+        didSet{
+            addressBtn.backgroundColor = .white
+            addressBtn.layer.borderColor = AppColor.borderColor.cgColor
+            addressBtn.layer.borderWidth = 2
+        }
+    }
+  
     
     
     @IBOutlet weak var backBtn: UIButton!{
@@ -121,7 +172,7 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
         selectedCardId = 0
         saveCardTV.reloadData()
        
-        
+        loadPaymnetPage()
     }
     
 
@@ -178,9 +229,11 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
         self.webView.isHidden = false
         self.webView.navigationDelegate = self
         self.webView.uiDelegate = self
+        self.webView.sizeToFit()
         let custometrId = UserDefaults.standard.value(forKey: USERID) as? Int ?? 0
-//        let url = URL(string: "https://cartandcook.com/Payment/ConfirmOrder?TotalAmount=5.25&CustomerID=12&CustomerCardID=10")!
+//        let url = URL(string: "http://10.1.12.30:91/Payment/ConfirmOrder?TotalAmount=\(totalAmount)&CustomerID=\(self.selectedCardId)&CustomerCardID=\(custometrId)")!
         let url = URL(string: "https://cartandcook.com/Payment/ConfirmOrder/ConfirmOrder?TotalAmount=\(totalAmount)&CustomerCardID=\(self.selectedCardId)&CustomerID=\(custometrId)")!
+        print(url)
         webView.load(URLRequest(url: url))
         self.activityIndicator.startAnimating()
     }
@@ -305,7 +358,6 @@ class PaymentVC: UIViewController, WKScriptMessageHandler , WKNavigationDelegate
      
 
         self.placeOrderVM.placeOrder(paramDict: paramDict){  isSuccess, errorMessage  in
-print("aaa", paramDict)
             if let success = self.placeOrderVM.responseStatus?.message?.lowercased() {
                 let date = Date()
                 let calendar = Calendar.current
@@ -398,6 +450,7 @@ print("aaa", paramDict)
             self.cashonDeliveryView.isHidden = false
             self.webviewOuterView.isHidden = true
             self.webView.isHidden = true
+            
             self.savedCardHeight.constant = 680.0
             
         } else {
@@ -571,6 +624,6 @@ extension PaymentVC : UITableViewDelegate, UITableViewDataSource {
         neCardView.layer.borderWidth = 1
         neCardView.layer.borderColor = UIColor.lightGray.cgColor
         saveCardTV.reloadData()
-      
+        loadPaymnetPage()
     }
 }

@@ -28,7 +28,10 @@ class ProductListCVCell: UICollectionViewCell {
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var discriptionLabel: UILabel!
-   
+    @IBAction func clickBtnAction(_ sender: Any) {
+        clickEvent?(self)
+    }
+    
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var originLabel: UILabel!
     
@@ -43,6 +46,7 @@ class ProductListCVCell: UICollectionViewCell {
     }
     var addTapAction: ((ProductListCVCell) -> ())?
      var subTapAction: ((ProductListCVCell) -> ())?
+    var clickEvent: ((ProductListCVCell) -> ())?
     @IBAction func substract(_ sender: Any) {
         subTapAction?(self)
     }

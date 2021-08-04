@@ -16,12 +16,13 @@ class ProductDetailsVC: UIViewController, UITextFieldDelegate {
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     @IBOutlet weak var titleLabel: UILabel!
    
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var cartcountBtn: UIButton!
     @IBOutlet weak var categoryListCV: UICollectionView!
     @IBOutlet weak var similarView: UIView!
     @IBOutlet weak var specificationview: UIView!
     @IBOutlet weak var pckgingLabel: UILabel!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var imageActivityIndicator: UIActivityIndicatorView!
     
     @IBOutlet weak var shelfLifeLabel: UILabel!
     @IBOutlet weak var itemcountLabel: UILabel!
@@ -142,8 +143,21 @@ class ProductDetailsVC: UIViewController, UITextFieldDelegate {
 //    //           cell.activityIndicator.stopAnimating()
 //            }
             
+//            if let  byted =  tableItems[0].value(forKey: "thumbnail") as? Data {
+//                DispatchQueue.main.async {
+//                    let decodedimage = UIImage(data: byted, scale: 0.7)
+//    //                                if let updateCell = self.categoryListCV.cellForItem(at: indexPath){
+//                    self.productImage.image = decodedimage
+//                    self.activityIndicator.stopAnimating()
+//    //                                }
+//
+//
+//                }
+//            }
+            
             if(isConnectedToInternet()) {
-                if let file_path = self.tableItems[0].value(forKey: "image") as? String  {
+                if let file_path = self.tableItems[0].value(forKey: "actualImage") as? String  {
+                    HomeViewControllerVC().saveThumbImage(id: self.itemId, thumnNail: file_path)
                     DispatchQueue.main.async {
                         self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
                                 var  fileBytes  = ""
@@ -159,6 +173,7 @@ class ProductDetailsVC: UIViewController, UITextFieldDelegate {
                                 let decodedimage = UIImage(data: dataDecoded, scale: 1)
 
                                 self.productImage.image = decodedimage
+                                self.imageActivityIndicator.stopAnimating()
                             }
 
                         }
@@ -340,6 +355,8 @@ extension  ProductDetailsVC: UICollectionViewDelegate, UICollectionViewDataSourc
          guard let cell =  categoryListCV.dequeueReusableCell(withReuseIdentifier: "ProductListCVCell", for: indexPath) as? ProductListCVCell else {
                return UICollectionViewCell()
           }
+        var itemID = 0
+        itemID = self.relatedItems[indexPath.row].value(forKey: "itemID") as? Int ?? 0
          let isPromotionItem = self.relatedItems[indexPath.row].value(forKey: "isPromotionItem") as? Bool ?? false
             if(isPromotionItem){
                 cell.offerView.isHidden = false
@@ -372,33 +389,71 @@ extension  ProductDetailsVC: UICollectionViewDelegate, UICollectionViewDataSourc
 //            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
 ////           cell.activityIndicator.stopAnimating()
 //        }
-        if(isConnectedToInternet()) {
-            if let file_path = self.relatedItems[indexPath.row].value(forKey: "image") as? String  {
-                DispatchQueue.main.async {
-                    self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
-                            var  fileBytes  = ""
-                        if let  byte = self.getobjectVM.responseStatus?.fileBytes {
-                            var encoded64 = byte
-                            let remainder = encoded64.count % 4
-                            if remainder > 0 {
-                                encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
-                                                              withPad: "=",
-                                                              startingAt: 0)
-                            }
-                            let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
-                            let decodedimage = UIImage(data: dataDecoded, scale: 1)
+ 
+        let  byted =  relatedItems[indexPath.row].value(forKey: "thumbnail") as? Data ??  Data()
+           if(byted.count == 0) {
+               if(isConnectedToInternet()) {
+                   if let file_path = self.relatedItems[indexPath.row].value(forKey: "actualImage") as? String  {
+                   
+                           self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
+                                   var  fileBytes  = ""
+                               if let  byte = self.getobjectVM.responseStatus?.fileBytes {
 
-                            cell.productImage.image = decodedimage
-                        }
+                                   var encoded64 = byte
+                                   let remainder = encoded64.count % 4
+                                   if remainder > 0 {
+                                       encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
+                                                                     withPad: "=",
+                                                                     startingAt: 0)
+                                   }
+                                   DispatchQueue.main.async {
+                                       let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
+                                       let decodedimage = UIImage(data: dataDecoded, scale: 0.7)
+       //                                if let updateCell = self.categoryListCV.cellForItem(at: indexPath){
+                                           cell.productImage.image = decodedimage
+       //                                }
+                                       let managedContext =
+                                           self.appDelegate.persistentContainer.viewContext
+                                       var attributeArray : [NSPredicate] = []
+                                       let fetchRequest =
+                                         NSFetchRequest<NSManagedObject>(entityName: "ProductList")
+                                       
+                                       do {
+                                           fetchRequest.predicate = NSPredicate(format: "itemID = %@", "\(itemID)")
 
-                    }
-                }
-            }
+                                           let result = try? managedContext.fetch(fetchRequest)
+                   //                        print(result?.count, result)
+                                           if(result?.count == 1) {
+                                               let dic = result![0]
+                                           dic.setValue(dataDecoded, forKey: "thumbnail")
+                                               try managedContext.save()
+                                           }
+                   //                        if(index == homecount - 1) {
+                   ////                           print( "DB Updated")
+                   ////                            self.refreshControl.endRefreshing()
+                   //                        }
 
-        }
+                                       } catch let error as NSError {
+                                                     print("Could not fetch. \(error), \(error.userInfo)")
+                                       }
+
+                                   }
+
+                               }
+
+                           }
+
+                   }
+
+               }
+           } else {
+               let decodedimage = UIImage(data: byted, scale: 0.7)
+//                                if let updateCell = self.categoryListCV.cellForItem(at: indexPath){
+                   cell.productImage.image = decodedimage
+//                                }
+           }
      
-        var itemID = 0
-        itemID = self.relatedItems[indexPath.row].value(forKey: "itemID") as? Int ?? 0
+       
         if let cartCount = self.getCartCount(id: itemID) {
             if(cartCount > 0) {
                 cell.subButton.isHidden = false

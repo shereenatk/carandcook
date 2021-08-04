@@ -11,6 +11,7 @@ class CartCC: UICollectionViewCell {
     @IBOutlet weak var productImage: SquareImageView!
     var id = 0
     var selectedBtn = -1
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     var actualPrice = 0.0
     @IBOutlet weak var offerView: UIView!{
         didSet{

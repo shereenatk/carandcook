@@ -101,6 +101,10 @@
                                                     <constraint firstItem="me7-kW-aTA" firstAttribute="centerY" secondItem="bxM-Gd-VX8" secondAttribute="centerY" id="wod-E4-teJ"/>
                                                 </constraints>
                                             </view>
+                                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" hidesWhenStopped="YES" animating="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="3QM-MH-W9V">
+                                                <rect key="frame" x="188" y="408" width="37" height="37"/>
+                                                <color key="color" red="0.25490196079999999" green="0.12941176469999999" blue="0.35686274509999999" alpha="1" colorSpace="calibratedRGB"/>
+                                            </activityIndicatorView>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="66T-L0-vaO">
                                                 <rect key="frame" x="15" y="180" width="384" height="97"/>
                                                 <subviews>
@@ -571,8 +575,10 @@
                                             <constraint firstItem="66T-L0-vaO" firstAttribute="trailing" secondItem="sik-FW-ji1" secondAttribute="trailing" id="4fo-a3-9c7"/>
                                             <constraint firstItem="bxM-Gd-VX8" firstAttribute="trailing" secondItem="sik-FW-ji1" secondAttribute="trailing" constant="5" id="5Tf-0J-Iwg"/>
                                             <constraint firstItem="66T-L0-vaO" firstAttribute="leading" secondItem="sik-FW-ji1" secondAttribute="leading" id="5Xd-e8-R83"/>
+                                            <constraint firstItem="3QM-MH-W9V" firstAttribute="centerX" secondItem="sik-FW-ji1" secondAttribute="centerX" id="8S8-NS-9oB"/>
                                             <constraint firstItem="2uv-Ag-kAw" firstAttribute="trailing" secondItem="3GU-vu-kRM" secondAttribute="trailing" id="Dk9-z0-rCA"/>
                                             <constraint firstItem="3GU-vu-kRM" firstAttribute="top" secondItem="bXk-uV-hb3" secondAttribute="bottom" constant="10" id="KuO-1P-pKA"/>
+                                            <constraint firstItem="3QM-MH-W9V" firstAttribute="centerY" secondItem="sik-FW-ji1" secondAttribute="centerY" id="Mg0-Uu-EYE"/>
                                             <constraint firstItem="2uv-Ag-kAw" firstAttribute="top" secondItem="3GU-vu-kRM" secondAttribute="bottom" constant="10" id="OeF-cM-F5f"/>
                                             <constraint firstItem="AQf-Lj-Obf" firstAttribute="top" secondItem="2uv-Ag-kAw" secondAttribute="top" id="b2a-zz-J6g"/>
                                             <constraint firstItem="Qy4-eF-KuU" firstAttribute="top" secondItem="66T-L0-vaO" secondAttribute="bottom" constant="5" id="dEj-cO-MDx"/>
@@ -743,12 +749,13 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="activityIndicator" destination="F9J-WT-kdt" id="UA7-YD-f4R"/>
+                        <outlet property="activityIndicator" destination="F9J-WT-kdt" id="INo-Uk-cYx"/>
                         <outlet property="actualPriceLabel" destination="9UV-4d-gxt" id="QKP-QQ-dLG"/>
                         <outlet property="addButton" destination="tIo-Rr-ut9" id="hEF-Jl-qdB"/>
                         <outlet property="cartcountBtn" destination="nYJ-XU-5bZ" id="IIg-cf-cxx"/>
                         <outlet property="categoryListCV" destination="QmD-44-dMP" id="72H-fZ-oJh"/>
                         <outlet property="discriptionLabel" destination="WYf-lE-i01" id="MmI-gb-GTK"/>
+                        <outlet property="imageActivityIndicator" destination="3QM-MH-W9V" id="IGi-fW-x5h"/>
                         <outlet property="itemcountLabel" destination="vg6-9c-yJr" id="Jgv-Cx-G3s"/>
                         <outlet property="nameLabel" destination="BYV-jA-E2g" id="Qsv-bb-xqa"/>
                         <outlet property="offerView" destination="bxM-Gd-VX8" id="s66-nJ-9ce"/>
@@ -837,6 +844,13 @@
                                                         <constraint firstAttribute="height" constant="150" id="dD8-6L-RJJ"/>
                                                     </constraints>
                                                 </imageView>
+                                                <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Zp-bV-G1o">
+                                                    <rect key="frame" x="174" y="305" width="46" height="30"/>
+                                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <connections>
+                                                        <action selector="clickBtnAction:" destination="oAY-v2-xDr" eventType="touchUpInside" id="zI5-dI-Tfg"/>
+                                                    </connections>
+                                                </button>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CcR-nh-FZd" customClass="SquareView" customModule="Cart___Cook" customModuleProvider="target">
                                                     <rect key="frame" x="0.0" y="0.0" width="60" height="25"/>
                                                     <subviews>
@@ -946,7 +960,11 @@
                                                 <constraint firstAttribute="bottom" secondItem="w3o-Sn-qT0" secondAttribute="bottom" constant="8" id="S6h-Fo-7yM"/>
                                                 <constraint firstItem="CcR-nh-FZd" firstAttribute="top" secondItem="6sH-gL-po5" secondAttribute="top" constant="-5" id="SCq-fe-qrJ"/>
                                                 <constraint firstItem="6sH-gL-po5" firstAttribute="leading" secondItem="lD3-NZ-7oO" secondAttribute="leading" constant="5" id="TeG-eb-nvF"/>
+                                                <constraint firstItem="1Zp-bV-G1o" firstAttribute="trailing" secondItem="6sH-gL-po5" secondAttribute="trailing" id="UD7-P0-dgc"/>
+                                                <constraint firstItem="1Zp-bV-G1o" firstAttribute="leading" secondItem="6sH-gL-po5" secondAttribute="leading" id="VDg-4G-jYB"/>
                                                 <constraint firstAttribute="trailing" secondItem="6sH-gL-po5" secondAttribute="trailing" constant="5" id="WeY-DD-274"/>
+                                                <constraint firstItem="1Zp-bV-G1o" firstAttribute="top" secondItem="6sH-gL-po5" secondAttribute="top" id="kL1-QQ-Gte"/>
+                                                <constraint firstItem="1Zp-bV-G1o" firstAttribute="bottom" secondItem="6sH-gL-po5" secondAttribute="bottom" id="r00-4m-fbu"/>
                                                 <constraint firstItem="w3o-Sn-qT0" firstAttribute="trailing" secondItem="6sH-gL-po5" secondAttribute="trailing" id="u3P-Cq-BU3"/>
                                             </constraints>
                                         </collectionViewCellContentView>

@@ -39,6 +39,7 @@ enum PageRouter: URLRequestConvertible {
     case getSavedCards([String: Any])
     case getCategory
     case getOutstandingAmount([String: Any])
+    case makePaymnet([String: Any])
     
     var method: HTTPMethod {
         switch self {
@@ -54,6 +55,7 @@ enum PageRouter: URLRequestConvertible {
             .confirmsuplierOrder,
             .supplierPlaceOrder,
             .mapProducts,
+            .makePaymnet,
             .register:
             return .post
         case    .productList,
@@ -94,6 +96,7 @@ enum PageRouter: URLRequestConvertible {
                 .resetPassword,
                 .mapProducts,
                 .priceUpdate,
+                .makePaymnet,
                .register:
                 return JSONEncoding.default
             case
@@ -137,6 +140,7 @@ enum PageRouter: URLRequestConvertible {
                     .getSupplierOrderList(let params),
                     .getOutstandingAmount(let params),
                     .getSavedCards(let params),
+                    .makePaymnet(let params),
                     .register(let params):
                   
                        return params
@@ -179,6 +183,7 @@ enum PageRouter: URLRequestConvertible {
                 .priceUpdate,
                 .forgotPassword,
                 .getOutstandingAmount,
+                .makePaymnet,
                 .register:
                 return AppConstants.getApiHeaders()
             }
@@ -242,6 +247,8 @@ enum PageRouter: URLRequestConvertible {
                 relativePath = "Customer/ForgotPassword"
             case .getOutstandingAmount:
                 relativePath = "Order/Outstanding"
+            case .makePaymnet:
+                relativePath = "Order/PayAmount"
             }
             
             var url = URL(string: AppConstants.getBaseUrl())

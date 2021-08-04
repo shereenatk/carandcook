@@ -157,12 +157,20 @@ class AddSupplierVC: UIViewController , UITextFieldDelegate , CountryPickerViewD
     @IBOutlet weak var tradeLicnumTf: UITextField!
     
     override func viewDidLoad() {
-        let cpv = CountryPickerView(frame: CGRect(x: 0, y: 0, width: 120, height: 20))
+//        let cpv = CountryPickerView(frame: CGRect(x: 0, y: 0, width: 120, height: 20))
+//        mobileTf.leftView = cpv
+//
+//        mobileTf.leftViewMode = .always
+//        cpv.delegate = self
+//        cpv.dataSource = self
+        let cpv = UITextField(frame: CGRect(x: 10, y: 0, width: 100, height: 18))
         mobileTf.leftView = cpv
+        cpv.font =  .systemFont(ofSize: 14)
+        cpv.text = "+971"
         mobileTf.leftViewMode = .always
-        cpv.delegate = self
-        cpv.dataSource = self
+        
         getCategoryList()
+   
         pickerController.delegate = self
         pickerControllerContract.delegate = self
         pickerControllerTradeLicence.delegate = self
@@ -207,6 +215,7 @@ class AddSupplierVC: UIViewController , UITextFieldDelegate , CountryPickerViewD
         backView.isHidden = false
         actionview.isHidden = false
         selectedBtnVal = 0
+        self.view.endEditing(true)
     }
     
   
@@ -214,12 +223,14 @@ class AddSupplierVC: UIViewController , UITextFieldDelegate , CountryPickerViewD
         backView.isHidden = false
         actionview.isHidden = false
         selectedBtnVal = 1
+        self.view.endEditing(true)
     }
     
     @IBAction func contractSelectAction(_ sender: Any) {
         backView.isHidden = false
         actionview.isHidden = false
         selectedBtnVal = 2
+        self.view.endEditing(true)
     }
     
     @IBAction func backAction(_ sender: Any) {
@@ -322,6 +333,7 @@ class AddSupplierVC: UIViewController , UITextFieldDelegate , CountryPickerViewD
                     print("callBack \(values)")
                     var finalText = ""
                     self.selectedCategories.removeAll()
+            
             for i in 0...values.count - 1 {
                         self.selectedCategories.append(values[i]["display"]!)
                         finalText = finalText  + values[i]["display"]! + (i < values.count - 1 ? " , ": "")

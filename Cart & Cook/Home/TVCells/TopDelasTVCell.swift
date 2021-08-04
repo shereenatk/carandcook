@@ -14,6 +14,7 @@ class TopDelasTVCell: UITableViewCell {
     @IBOutlet weak var offerView: SquareView!{
         didSet{
             offerView.startShimmeringEffect()
+            offerView.backgroundColor = .red
         }
     }
     

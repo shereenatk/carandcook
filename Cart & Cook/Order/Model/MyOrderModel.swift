@@ -56,6 +56,7 @@ struct Item: Codable {
     let weight, price: Double?
     let unit: String?
     let priceQuality: String?
+    let category: String?
 
     enum CodingKeys: String, CodingKey {
         case itemID = "ItemId"
@@ -64,6 +65,7 @@ struct Item: Codable {
         case weight = "Weight"
         case price = "Price"
         case unit = "Unit"
+        case category = "Category"
         case priceQuality = "PriceQuality"
     }
 }

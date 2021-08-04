@@ -48,6 +48,9 @@ class MyAddressVC: UIViewController {
                 myAddressCV.reloadData()
                 addLocBtn.isHidden = true
                 nolocationLabel.isHidden = true
+                if let id = self.tableItems[0].value(forKey: "id") as? Int {
+                    UserDefaults.standard.setValue(id, forKey: ADDRESSID)
+                }
             } else {
                 addLocBtn.isHidden = false
                 nolocationLabel.isHidden = false
@@ -69,7 +72,7 @@ class MyAddressVC: UIViewController {
     @IBAction func confirmLocAction(_ sender: Any) {
         
         if let vc =  UIStoryboard(name: "Checkout", bundle: nil).instantiateViewController(withIdentifier: "CheckoutVC") as? CheckoutVC {
-            vc.addressId = selectedAddressId
+//            vc.addressId = selectedAddressId
 //            print(selectedAddressId)
             self.navigationController?.pushViewController(vc, animated:   true)
         }
@@ -127,6 +130,7 @@ extension  MyAddressVC: UICollectionViewDelegate, UICollectionViewDataSource, UI
           return
        }
         self.selectedAddressId = cell.id
+        UserDefaults.standard.setValue(cell.id, forKey: ADDRESSID)
         myAddressCV.reloadData()
     }
 

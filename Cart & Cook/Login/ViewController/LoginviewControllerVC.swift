@@ -91,66 +91,63 @@ class LoginviewControllerVC: UIViewController {
                 self.loginVM.loginUser(email: mail, password: pswrd){  isSuccess, errorMessage  in
                     if let id = self.loginVM.responseStatus?.customerID {
                         if(id > 0) {
-                            UserDefaults.standard.set(id, forKey: USERID)
-                            UserDefaults.standard.set(true, forKey: ISLOWQUALITY)
-                           
-                            if let rname = self.loginVM.responseStatus?.restaurants?[0].restaurantName {
-                                UserDefaults.standard.set(rname, forKey: RESTAURANTNAME)
-                            }
-                            
-                            if let fname = self.loginVM.responseStatus?.firstName {
-                                UserDefaults.standard.set(fname, forKey: FIRSTNAME)
-                            }
-                            if let lname = self.loginVM.responseStatus?.lastName {
-                                UserDefaults.standard.set(lname, forKey: LASTNAME)
-                            }
-                            if let mob = self.loginVM.responseStatus?.phoneNumber {
-                                UserDefaults.standard.set(mob, forKey: PHONENUMBER)
-                            }
-                            if let mail = self.loginVM.responseStatus?.emailAddress {
-                                UserDefaults.standard.set(mail, forKey: EMAILID)
-                            }
-                            if let outletId = self.loginVM.responseStatus?.restaurants?[0].outlets?[0].outletLocationID {
-                                UserDefaults.standard.set(outletId, forKey: OUTLETID)
-                            }
-                            if let outletLoc = self.loginVM.responseStatus?.restaurants?[0].outlets?[0].outletLocationName {
-                                UserDefaults.standard.set(outletLoc, forKey: OUTLETLOCATION)
-                            }
-                            if let vat = self.loginVM.responseStatus?.restaurants?[0].vatNumber {
-                                UserDefaults.standard.set(vat, forKey: TRNNUMBER)
-                            }
-                            if let restaurantId = self.loginVM.responseStatus?.restaurants?[0].restaurantID{
-                                UserDefaults.standard.set(restaurantId, forKey: RESTAURANTID)
-                            }
-                            if let brand = self.loginVM.responseStatus?.restaurants?[0].brand{
-                                UserDefaults.standard.set(brand, forKey: BRAND)
-                            }
-                            if let isactive = self.loginVM.responseStatus?.isActive {
-                                if(isactive){
-                                    UserDefaults.standard.setValue(true, forKey: ISACTIVATEDACCOUNT)
-                                    self.errorLabel.isHidden = true
-                                    UserDefaults.standard.set(true, forKey: IS_LOGIN)
-                                    guard let window = UIApplication.shared.windows.first else { return }
-
-                                    UIView.transition(with: window, duration: 0.5, options: .curveEaseInOut, animations: {
-                                        window.rootViewController = AppLandingNC()
-                                    }, completion: nil)
+                            if let isinvalid = self.loginVM.responseStatus?.isIncorrect {
+                                if(isinvalid) {
+                                    self.errorLabel.isHidden = false
+                                    self.errorLabel.text = "Invalid Password"
+                                    return
+                                } else {
+                                    UserDefaults.standard.set(id, forKey: USERID)
+                                    UserDefaults.standard.set(true, forKey: ISLOWQUALITY)
+                                   
+                                    if let rname = self.loginVM.responseStatus?.restaurants?[0].restaurantName {
+                                        UserDefaults.standard.set(rname, forKey: RESTAURANTNAME)
+                                    }
                                     
-//
-//                                    let storyboard = UIStoryboard(name: "Home", bundle: nil)
-//                                        let pvc = storyboard.instantiateViewController(withIdentifier: "AppLandingNC") as! AppLandingNC
-//                                        pvc.modalPresentationStyle = UIModalPresentationStyle.overCurrentContext
-//                                        self.present(pvc, animated: true, completion: nil)
-                                }
-                                else if let isincurect = self.loginVM.responseStatus?.isIncorrect {
-                                        if(isincurect){
-                                            self.activityIndicator.stopAnimating()
-                                            self.errorLabel.isHidden = false
-                                            self.errorLabel.text = "Wrong credentials"
-                                           
-                                            return
-                                        }
-                                        else {
+                                    if let fname = self.loginVM.responseStatus?.firstName {
+                                        UserDefaults.standard.set(fname, forKey: FIRSTNAME)
+                                    }
+                                    if let lname = self.loginVM.responseStatus?.lastName {
+                                        UserDefaults.standard.set(lname, forKey: LASTNAME)
+                                    }
+                                    if let mob = self.loginVM.responseStatus?.phoneNumber {
+                                        UserDefaults.standard.set(mob, forKey: PHONENUMBER)
+                                    }
+                                    if let mail = self.loginVM.responseStatus?.emailAddress {
+                                        UserDefaults.standard.set(mail, forKey: EMAILID)
+                                    }
+                                    if let outletId = self.loginVM.responseStatus?.restaurants?[0].outlets?[0].outletLocationID {
+                                        UserDefaults.standard.set(outletId, forKey: OUTLETID)
+                                    }
+                                    if let outletLoc = self.loginVM.responseStatus?.restaurants?[0].outlets?[0].outletLocationName {
+                                        UserDefaults.standard.set(outletLoc, forKey: OUTLETLOCATION)
+                                    }
+                                    if let vat = self.loginVM.responseStatus?.restaurants?[0].vatNumber {
+                                        UserDefaults.standard.set(vat, forKey: TRNNUMBER)
+                                    }
+                                    if let restaurantId = self.loginVM.responseStatus?.restaurants?[0].restaurantID{
+                                        UserDefaults.standard.set(restaurantId, forKey: RESTAURANTID)
+                                    }
+                                    if let brand = self.loginVM.responseStatus?.restaurants?[0].brand{
+                                        UserDefaults.standard.set(brand, forKey: BRAND)
+                                    }
+                                    if let isactive = self.loginVM.responseStatus?.isActive {
+                                        if(isactive){
+                                            UserDefaults.standard.setValue(true, forKey: ISACTIVATEDACCOUNT)
+                                            self.errorLabel.isHidden = true
+                                            UserDefaults.standard.set(true, forKey: IS_LOGIN)
+                                            guard let window = UIApplication.shared.windows.first else { return }
+
+                                            UIView.transition(with: window, duration: 0.5, options: .curveEaseInOut, animations: {
+                                                window.rootViewController = AppLandingNC()
+                                            }, completion: nil)
+                                            
+        //
+        //                                    let storyboard = UIStoryboard(name: "Home", bundle: nil)
+        //                                        let pvc = storyboard.instantiateViewController(withIdentifier: "AppLandingNC") as! AppLandingNC
+        //                                        pvc.modalPresentationStyle = UIModalPresentationStyle.overCurrentContext
+        //                                        self.present(pvc, animated: true, completion: nil)
+                                        } else {
                                             self.errorLabel.isHidden = true
                                             UserDefaults.standard.setValue(false, forKey: ISACTIVATEDACCOUNT)
                                             let storyboard = UIStoryboard(name: "Home", bundle: nil)
@@ -158,18 +155,26 @@ class LoginviewControllerVC: UIViewController {
                                                 pvc.modalPresentationStyle = UIModalPresentationStyle.overCurrentContext
                                                 self.present(pvc, animated: true, completion: nil)
                                         }
-                                    }
-                              
-                                   
-                            
-                        }
-                        
-                        } else {
+                                       
+                                    
+                                }
+                                
+                                else {
+                                    self.errorLabel.isHidden = false
+                                    self.errorLabel.text = "Invalid User Credentials"
+                                }
+
+                                }
+                            } else {
                             self.errorLabel.isHidden = false
                             self.errorLabel.text = "Invalid User Credentials"
                         }
                        
-                    }
+                        } else {
+                            self.activityIndicator.stopAnimating()
+                            self.errorLabel.isHidden = false
+                            self.errorLabel.text = "Invalid User Credentials "
+                        }
                        
                 
                    
@@ -181,6 +186,7 @@ class LoginviewControllerVC: UIViewController {
            }
         
         
+    }
     }
     
 }

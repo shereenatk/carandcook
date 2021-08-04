@@ -36,10 +36,13 @@
         <attribute name="priceLowQuality" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="promotionPrice" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="shelfLife" optional="YES" attributeType="String"/>
+        <attribute name="standardDays" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="status" optional="YES" attributeType="String"/>
         <attribute name="storageRequirements" optional="YES" attributeType="String"/>
         <attribute name="thumbnail" optional="YES" attributeType="Binary"/>
         <attribute name="unit" optional="YES" attributeType="String"/>
+        <attribute name="urgentCharge" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="urgentDays" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="weight" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
     </entity>
     <entity name="SupplierCart" representedClassName="SupplierCart" syncable="YES" codeGenerationType="class">
@@ -60,7 +63,7 @@
         <element name="AddressList" positionX="-36" positionY="135" width="128" height="119"/>
         <element name="BuyAgain" positionX="-45" positionY="135" width="128" height="104"/>
         <element name="CartList" positionX="-54" positionY="117" width="128" height="74"/>
-        <element name="ProductList" positionX="-54" positionY="-9" width="128" height="329"/>
+        <element name="ProductList" positionX="-54" positionY="-9" width="128" height="374"/>
         <element name="SupplierCart" positionX="-45" positionY="135" width="128" height="149"/>
         <element name="TimeSlotValues" positionX="-54" positionY="117" width="128" height="59"/>
     </elements>

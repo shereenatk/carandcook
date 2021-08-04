@@ -18,6 +18,7 @@ PODS:
   - RangeSeekSlider (1.8.0)
   - SideMenu (6.5.0)
   - SimplePDF (3.0.0)
+  - Siren (5.8.1)
   - Toast-Swift (5.0.1)
   - XLPagerTabStrip (9.0.0)
 
@@ -36,6 +37,7 @@ DEPENDENCIES:
   - RangeSeekSlider
   - SideMenu
   - SimplePDF
+  - Siren
   - Toast-Swift (~> 5.0.0)
   - XLPagerTabStrip
 
@@ -55,6 +57,7 @@ SPEC REPOS:
     - RangeSeekSlider
     - SideMenu
     - SimplePDF
+    - Siren
     - Toast-Swift
     - XLPagerTabStrip
 
@@ -73,9 +76,10 @@ SPEC CHECKSUMS:
   RangeSeekSlider: 650b11fa1edcb92e1e0ede797669d98622570fb5
   SideMenu: f583187d21c5b1dd04c72002be544b555a2627a2
   SimplePDF: 903143ede36965886997a5c1bc6b8940b082ba20
+  Siren: de768099aff1f1c9acda4247064788a4940b4bf3
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
   XLPagerTabStrip: 61c57fd61f611ee5f01ff1495ad6fbee8bf496c5
 
-PODFILE CHECKSUM: 6a45353de41d6d40fbf1c2c5ca38bbd4518c1a29
+PODFILE CHECKSUM: b832aa08668c6a3b52e8e736c52b7e2b6c55025b
 
 COCOAPODS: 1.10.1

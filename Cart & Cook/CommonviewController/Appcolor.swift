@@ -70,6 +70,9 @@ enum AppColor {
     case backgroundred
     case borderColor
     case priceBorderColor
+    case lightRedBackgroung
+    case chartRed
+    
  
     // 1
     case custom(hexString: String, alpha: Double)
@@ -85,6 +88,8 @@ extension AppColor {
         switch self {
         case .chartGreen:
             instanceColor = UIColor(red: 0.23, green: 0.74, blue: 0.67, alpha: 1.00)
+        case .chartRed:
+            instanceColor = UIColor(red: 0.77, green: 0.28, blue: 0.45, alpha: 1.00)
         case .priceBorderColor:
             instanceColor = UIColor(red: 0.91, green: 0.77, blue: 0.57, alpha: 1.00)
         case .chartClr1:
@@ -126,6 +131,8 @@ extension AppColor {
         case .colorPrice:
               instanceColor =   UIColor(red: 0.97, green: 0.68, blue: 0.25, alpha: 1.00)
         case .backgroundred:
+            instanceColor = UIColor(red: 0.98, green: 0.96, blue: 1.00, alpha: 1.00)
+        case .lightRedBackgroung:
             instanceColor = UIColor(red: 0.98, green: 0.96, blue: 1.00, alpha: 1.00)
         case .borderColor:
             

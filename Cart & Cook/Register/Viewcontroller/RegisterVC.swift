@@ -63,11 +63,16 @@ class RegisterVC: UIViewController,  CountryPickerViewDelegate, CountryPickerVie
     
     override func viewDidLoad() {
         setTermsandCnditionUI()
-        let cpv = CountryPickerView(frame: CGRect(x: 0, y: 0, width: 120, height: 20))
+//        let cpv = CountryPickerView(frame: CGRect(x: 0, y: 0, width: 120, height: 20))
+//        mobileTf.leftView = cpv
+//        mobileTf.leftViewMode = .always
+//        cpv.delegate = self
+//        cpv.dataSource = self
+        let cpv = UITextField(frame: CGRect(x: 10, y: 0, width: 100, height: 18))
         mobileTf.leftView = cpv
+        cpv.font =  .systemFont(ofSize: 14)
+        cpv.text = "+971"
         mobileTf.leftViewMode = .always
-        cpv.delegate = self
-        cpv.dataSource = self
         setupDelegateForPickerView()
         setupDelegatesForTextFields()
         let gesture = UITapGestureRecognizer(target: self, action:  #selector(self.backgroungClick))

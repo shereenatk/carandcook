@@ -25,7 +25,6 @@ class PreviewPDFViewController: UIViewController, UIDocumentInteractionControlle
     var HTMLContent: String!
     override func viewDidLoad() {
         pageTitleLabel.text = "INV_" + self.orderId
-        
     }
     
     private func getMyOrderList() {
@@ -45,20 +44,17 @@ class PreviewPDFViewController: UIViewController, UIDocumentInteractionControlle
     func createInvoiceAsHTML() {
         invoiceComposer = OrderDetailsVC()
         let invoicedate = self.orderListM?[0].orderDate ?? ""
-        
-        
           let formatter = DateFormatter()
           formatter.dateFormat = "MMM dd yyyy hh:mma"
           guard let dateVa = formatter.date(from: invoicedate) else {
               return
           }
-
           formatter.dateFormat = "yyyy"
           let year = formatter.string(from: dateVa)
         let refNum = "#INV-" + "\(year)" + "-" + "\(UserDefaults.standard.value(forKey: USERID) as? Int ?? 0)" + "-" + orderId
         
-        if let items = self.orderListM?[0].items{
-            var products : [[String: Any]] = [[String: Any]]()
+        if let items = self.orderListM?[0].items {
+            var categoryDictionary  : [[String: Any]] = [[String: Any]]()
             let subtotal = self.orderListM?[0].total ?? 0.0
             let vat  = subtotal * 0.05
             let total = subtotal + vat
@@ -67,101 +63,86 @@ class PreviewPDFViewController: UIViewController, UIDocumentInteractionControlle
             let countryaddress =  (self.orderListM?[0].deliveryCountry) ?? ""
             let addressVal = address + "," + city + ","  + countryaddress
             formatter.dateFormat = "MMM dd yyyy hh:mma"
-               let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: dateVa)
-               let dateVal = formatter.string(from: tomorrow!)
-           
-           
-
+           let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: dateVa)
+           let dateVal = formatter.string(from: tomorrow!)
             let timeVal = self.orderListM?[0].deliverySlotTime ?? ""
             let paymnetMetod =  self.orderListM?[0].payment ?? ""
             let phone = self.orderListM?[0].phoneNumber ?? ""
             var i = -1
+            
+            var catList : [String] = []
             for item in items {
-                i = i + 1
-                if let id = item.itemID {
-                    guard let appDelegate =
-                      UIApplication.shared.delegate as? AppDelegate else {
-                        return
+                if let category = item.category {
+                    if(!catList.contains(category)) {
+                        catList.append(category)
                     }
-                    let managedContext =
-                      appDelegate.persistentContainer.viewContext
-                    let fetchRequest =
-                      NSFetchRequest<NSManagedObject>(entityName: "ProductList")
-                    do {
-                        let sort = NSSortDescriptor(key:"item", ascending:true)
-                        fetchRequest.sortDescriptors = [sort]
-                        fetchRequest.predicate = NSPredicate(format: "itemID = %@", "\(id)")
-                        let fetchItems = try managedContext.fetch(fetchRequest)
-                        let country = fetchItems[0].value(forKey: "country") as? String ?? ""
-                        let description =  fetchItems[0].value(forKey: "poductListModelDescription") as? String ?? ""
-                        let name = item.name ?? ""
-                        let unit = item.unit ?? ""
-                        let price = item.price ?? 0.0
-                        let qty = item.weight ?? 0.0
-                        let singlePrice = price / qty
-                        
-                        let dict = [ "name" : name, "unit" : unit, "price" : singlePrice, "qty": qty, "total" : price, "country": country, "description" : description, "address" : address] as [String : Any]
-                        if(name != "") {
-                            products.insert(dict, at: i)
+                }
+            }
+            var catdict : [[String: Any]] = [[String: Any]]()
+            for cat in catList {
+                var products : [[String: Any]] = [[String: Any]]()
+                for item in items {
+                    i = i + 1
+                    let category = item.category ?? ""
+                    if(cat == category) {
+                        catdict = []
+                      
+                        if let id = item.itemID {
+                            guard let appDelegate =
+                              UIApplication.shared.delegate as? AppDelegate else {
+                                return
+                            }
+                            let managedContext =
+                              appDelegate.persistentContainer.viewContext
+                            let fetchRequest =
+                              NSFetchRequest<NSManagedObject>(entityName: "ProductList")
+                            do {
+                                let sort = NSSortDescriptor(key:"item", ascending:true)
+                                fetchRequest.sortDescriptors = [sort]
+                                fetchRequest.predicate = NSPredicate(format: "itemID = %@", "\(id)")
+                                let fetchItems = try managedContext.fetch(fetchRequest)
+                                let country = fetchItems[0].value(forKey: "country") as? String ?? ""
+                                let description =  fetchItems[0].value(forKey: "poductListModelDescription") as? String ?? ""
+                                let name = item.name ?? ""
+                                let unit = item.unit ?? ""
+                                let price = item.price ?? 0.0
+                                let qty = item.weight ?? 0.0
+                                let singlePrice = price / qty
+                                let category = item.category ?? ""
+                                let dict = [ "name" : name, "unit" : unit, "price" : singlePrice, "qty": qty, "total" : price, "country": country, "description" : description, "address" : address, ] as [String : Any]
+                                
+                                if(name != "") {
+                                    products.append(dict)
+                                }
+                            } catch let error as NSError {
+                              print("Could not fetch. \(error), \(error.userInfo)")
+                            }
                         }
                        
-                       
-                    } catch let error as NSError {
-                      print("Could not fetch. \(error), \(error.userInfo)")
-                    }
-//                    print(products, "products")
-                    if let invoiceHTML = invoiceComposer.renderInvoice(invoiceNumber: refNum, invoiceDate: invoicedate,
-                                                                       items: products,
-                                                                       totalAmount: total,
-                                                                       subtotal: subtotal,
-                                                                       vat: vat,
-                                                                       paymentMethod: paymnetMetod,
-                                                                       address: addressVal, phone: phone,
-                                                                       delDate: dateVal,
-                                                                       delTime: timeVal
-                                                                       ) {
-//                         print(invoiceHTML)
-                        if let htmlPathURL = Bundle.main.url(forResource: "invoice", withExtension: "html"){
-                                  
-            //                           let html = try String(contentsOf: htmlPathURL, encoding: .utf8)
-                                        
-                                        webPreview.loadHTMLString(invoiceHTML, baseURL:htmlPathURL)
-                            aactivityIndicator.stopAnimating()
-                            
-            //                            HTMLContent = invoiceHTML
-            //                invoiceComposer.exportHTMLContentToPDF(HTMLContent: HTMLContent)
-            //                            if #available(iOS 10.0, *) {
-            //                                 do {
-            //                                     let docURL = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            //                                     let contents = try FileManager.default.contentsOfDirectory(at: docURL, includingPropertiesForKeys: [.fileResourceTypeKey], options: .skipsHiddenFiles)
-            //                                     for url in contents {
-            //                                         if url.description.contains("invoice1.pdf") {
-            //                                            // its your file! do what you want with it!
-            //                                          let request = URLRequest(url: url)
-            ////                                          self.webPreview.load(request)
-            //                                            let dc = UIDocumentInteractionController(url: url)
-            //                                                dc.delegate = self
-            //                                                dc.presentPreview(animated: true)
-            //                                     }
-            //                                 }
-            //                             } catch {
-            //                                 print("could not locate pdf file !!!!!!!")
-            //                             }
-            //                            }
-                                   
-                                }
-                        
-                 
-                       
-                        
                     }
                    
                 }
-              
+                catdict.append(["category": cat, "items": products])
+                categoryDictionary.append(contentsOf: catdict)
             }
+//            print(categoryDictionary)
+            if let invoiceHTML = invoiceComposer.renderInvoice(invoiceNumber: refNum, invoiceDate: invoicedate,
+                                                               items: categoryDictionary,
+                                                               totalAmount: total,
+                                                               subtotal: subtotal,
+                                                               vat: vat,
+                                                               paymentMethod: paymnetMetod,
+                                                               address: addressVal, phone: phone,
+                                                               delDate: dateVal,
+                                                               delTime: timeVal
+                                                               ) {
+                if let htmlPathURL = Bundle.main.url(forResource: "invoice", withExtension: "html"){
+                    webPreview.loadHTMLString(invoiceHTML, baseURL:htmlPathURL)
+                    aactivityIndicator.stopAnimating()
+                }
+            }
+            
         }
-        
-      
     }
     
    
@@ -173,12 +154,13 @@ class PreviewPDFViewController: UIViewController, UIDocumentInteractionControlle
         self.webPreview.navigationDelegate = self
        
     }
+    
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         NSLog("didFinishNavigation")
 
         // Sometimes, this delegate is called before the image is loaded. Thus we give it a bit more time.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [self] in
-             pdfPath = invoiceComposer.createPDF(formatter: webView.viewPrintFormatter(), filename: "MyPDFDocument")
+             pdfPath = invoiceComposer.createPDF(formatter: webView.viewPrintFormatter(), filename: "PDF")
             
             print("PDF location: \(pdfPath)")
 //            self.pdfFile = path

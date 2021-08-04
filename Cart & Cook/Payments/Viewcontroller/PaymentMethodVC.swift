@@ -17,7 +17,7 @@ class PaymentMethodVC: UIViewController {
     var selectedIdex = 0
     var selectedCardId = 0
     var selectedIndex = -1
-    
+    var amount = 0.0
     override func viewDidLoad() {
         getSavedCardLists()
     }
@@ -26,6 +26,9 @@ class PaymentMethodVC: UIViewController {
         savedCardVM.getSavedCards()  { isSuccess, errorMessage  in
             self.activityIndicator.stopAnimating()
             self.savedCardM = self.savedCardVM.responseStatus
+            if let coubnt = self.savedCardM?.count {
+                self.tableHeight.constant = CGFloat(coubnt * 100)
+            }
             self.cardListTV.reloadData()
             self.cardListTV.tableFooterView = UIView()
         }
@@ -36,6 +39,8 @@ class PaymentMethodVC: UIViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
+    
+    @IBOutlet weak var tableHeight: NSLayoutConstraint!
 }
 extension PaymentMethodVC : UITableViewDelegate, UITableViewDataSource {
     
@@ -88,6 +93,11 @@ extension PaymentMethodVC : UITableViewDelegate, UITableViewDataSource {
            return
        }
         selectedCardId = cell.cardId
-      
+        if let vc =  UIStoryboard(name: "Checkout", bundle: nil).instantiateViewController(withIdentifier: "OnlinePaymentVC") as? OnlinePaymentVC {
+            vc.selectedCardId = cell.cardId
+            vc.totalAmount = self.amount
+            self.navigationController?.pushViewController(vc, animated:   true)
+
+        }
     }
 }

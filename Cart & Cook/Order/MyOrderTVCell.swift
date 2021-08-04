@@ -18,6 +18,9 @@ class MyOrderTVCell: UITableViewCell {
     @IBOutlet weak var vatAmountLabel: UILabel!
     @IBOutlet weak var baseAmountLabel: UILabel!
     @IBOutlet weak var orderIdLabel: UILabel!
+    @IBOutlet weak var dueamountLabel: UILabel!
+    @IBOutlet weak var dueTitleLabel: UILabel!
+    
     var timer = Timer()
     var orderNum = 0
 }

@@ -16,6 +16,9 @@ class CartVC: UIViewController {
     @IBOutlet weak var vatLabel: UILabel!
     @IBOutlet weak var cartCV: UICollectionView!
     @IBOutlet weak var subTotalLabel: UILabel!
+    
+    @IBOutlet weak var availbleBalanceStack: UIStackView!
+    @IBOutlet weak var availableBalanceLabel: UILabel!
     @IBOutlet weak var checkoutBtn: UIButton!{
         didSet{
             checkoutBtn.layer.backgroundColor = AppColor.colorGreen.cgColor
@@ -27,6 +30,7 @@ class CartVC: UIViewController {
     var totalamount = 0.0
     var subTotalAmount = 0.0
     var vatamount = 0.0
+    var prepaidAmount = 0.0
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     override func viewWillAppear(_ animated: Bool) {
@@ -39,6 +43,7 @@ class CartVC: UIViewController {
             }
         }
         getcartList()
+        outstangingAmountApi()
     }
    
     override func viewDidLoad() {
@@ -119,7 +124,23 @@ class CartVC: UIViewController {
         
     }
     
+    private func outstangingAmountApi()  {
+        let overDueVM = OverDueVM()
+      
+        overDueVM.getOverDueAmount(){  isSuccess, errorMessage  in
+            self.prepaidAmount = overDueVM.responseStatus?.PrepaidAmount ?? 0.0
+            if(self.prepaidAmount > 0) {
+            
+                self.availableBalanceLabel.text =   "AED " + String(format: "%.2f", ceil(self.prepaidAmount*100)/100)
+                self.availbleBalanceStack.isHidden = false
+            } else {
+                self.availbleBalanceStack.isHidden = true
+            }
+        }
+    }
+    
     private func updateTotalAmount()  {
+        outstangingAmountApi()
          totalamount = 0.0
          subTotalAmount = 0.0
          vatamount = 0.0
@@ -156,7 +177,7 @@ class CartVC: UIViewController {
                
             }
             self.vatamount = (self.subTotalAmount * 0.05)
-            self.totalamount =    self.subTotalAmount + self.vatamount
+            self.totalamount =    self.subTotalAmount + self.vatamount - self.prepaidAmount
             self.totalLabel.text = "AED " +  String(format: "%.2f", ceil(self.totalamount*100)/100)
             self.subTotalLabel.text = "AED " +  String(format: "%.2f", ceil(self.subTotalAmount*100)/100)
             self.vatLabel.text = "AED " + String(format: "%.2f", ceil(self.vatamount*100)/100)
@@ -214,6 +235,20 @@ extension  CartVC: UICollectionViewDelegate, UICollectionViewDataSource, UIColle
             
         }
         cell.id = itemID
+        if let actualprice = self.tableItems[indexPath.row].value(forKey: "priceLowQuality") as? Double {
+            if(actualprice <= 0) {
+                cell.lowBtn.isHidden = true
+            } else {
+                cell.lowBtn.isHidden = false
+            }
+        }
+        if let actualprice = self.tableItems[indexPath.row].value(forKey: "priceHighQuality") as? Double {
+            if(actualprice <= 0) {
+                cell.highBtn.isHidden = true
+            } else {
+                cell.highBtn.isHidden = false
+            }
+        }
        
         if let unint = self.tableItems[indexPath.row].value(forKey: "unit") as? String  {
         if let isPromotionItem = self.tableItems[indexPath.row].value(forKey: "isPromotionItem") as? Bool {
@@ -263,6 +298,62 @@ extension  CartVC: UICollectionViewDelegate, UICollectionViewDataSource, UIColle
 //        if let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data {
 //            cell.productImage.image = UIImage(data: byted as! Data, scale: 0.7)
 //        }
+        
+        let  byted =  tableItems[indexPath.row].value(forKey: "thumbnail") as? Data ??  Data()
+           if(byted.count == 0) {
+               if(isConnectedToInternet()) {
+                   if let file_path = self.tableItems[indexPath.row].value(forKey: "actualImage") as? String  {
+                       cell.activityIndicator.startAnimating()
+                           self.getobjectVM.getObjectData(fileNAme: file_path){  isSuccess, errorMessage  in
+                                   var  fileBytes  = ""
+                               if let  byte = self.getobjectVM.responseStatus?.fileBytes {
+
+                                   var encoded64 = byte
+                                   let remainder = encoded64.count % 4
+                                   if remainder > 0 {
+                                       encoded64 = encoded64.padding(toLength: encoded64.count + 4 - remainder,
+                                                                     withPad: "=",
+                                                                     startingAt: 0)
+                                   }
+                                  
+                                       let dataDecoded : Data = Data(base64Encoded: encoded64, options: .ignoreUnknownCharacters)!
+                                       let decodedimage = UIImage(data: dataDecoded, scale: 0.7)
+       //                                if let updateCell = self.categoryListCV.cellForItem(at: indexPath){
+                                           cell.productImage.image = decodedimage
+                                           cell.activityIndicator.stopAnimating()
+       //                                }
+                                       let managedContext =
+                                           self.appDelegate.persistentContainer.viewContext
+                                       var attributeArray : [NSPredicate] = []
+                                       let fetchRequest =
+                                         NSFetchRequest<NSManagedObject>(entityName: "ProductList")
+                                       
+                                       do {
+                                           fetchRequest.predicate = NSPredicate(format: "itemID = %@", "\(itemID)")
+
+                                           let result = try? managedContext.fetch(fetchRequest)
+                                           if(result?.count == 1) {
+                                               let dic = result![0]
+                                           dic.setValue(dataDecoded, forKey: "thumbnail")
+                                               try managedContext.save()
+                                           }
+                                       } catch let error as NSError {
+                                                     print("Could not fetch. \(error), \(error.userInfo)")
+                                       }
+                               }
+
+                           }
+
+                   }
+
+               }
+           } else {
+               let decodedimage = UIImage(data: byted, scale: 0.7)
+               cell.productImage.image = decodedimage
+               cell.activityIndicator.stopAnimating()
+           }
+        
+        
         
         if(isConnectedToInternet()) {
             if let file_path = self.tableItems[indexPath.row].value(forKey: "image") as? String  {

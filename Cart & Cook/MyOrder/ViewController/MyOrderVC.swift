@@ -124,6 +124,16 @@ extension MyOrderVC : UITableViewDelegate, UITableViewDataSource {
                 
             }
         }
+        let dueVal = self.orderListM?[indexPath.row].outstandingAmount ?? 0.0
+        if(dueVal > 0) {
+            cell.dueamountLabel.isHidden = false
+            cell.dueTitleLabel.isHidden = false
+            cell.dueamountLabel.text = "AED " + "\(dueVal)"
+        } else {
+            cell.dueamountLabel.isHidden = true
+            cell.dueTitleLabel.isHidden = true
+        }
+        
         let baseprice = self.orderListM?[indexPath.row].total ?? 0.0
         cell.baseAmountLabel.text = "AED " +  String(format: "%.2f", ceil(baseprice*100)/100)
         let vat = baseprice * 0.05

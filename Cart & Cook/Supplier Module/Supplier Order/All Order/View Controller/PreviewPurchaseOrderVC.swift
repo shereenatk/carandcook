@@ -25,7 +25,7 @@ class PreviewPurchaseOrderVC: UIViewController, UIDocumentInteractionControllerD
     var mailISupplier = ""
     var supplierPhone = ""
     var supplierPaymnetTerms = ""
-    
+    var comments = ""
     @IBOutlet weak var webPreview: WKWebView!
     var HTMLContent: String!
     override func viewDidLoad() {
@@ -58,6 +58,7 @@ class PreviewPurchaseOrderVC: UIViewController, UIDocumentInteractionControllerD
                                       let  phone = item.phoneNumber {
                                         self.mailISupplier = mail
                                         self.supplierPaymnetTerms = paymnetTErms
+                                        self.comments = item.notes ?? ""
                                         self.supplierPhone = phone
                                         self.getAllMyOrderList()
                                     }
@@ -146,7 +147,7 @@ class PreviewPurchaseOrderVC: UIViewController, UIDocumentInteractionControllerD
                                                                        address: "addressVal", phone: "phone",
                                                                        delDate: "dateVal",
                                                                        delTime: "timeVal",
-                                                                       sname: name
+                                                                       sname: name, comments: self.comments
                                                                        ) {
                          print(invoiceHTML)
                         if let htmlPathURL = Bundle.main.url(forResource: "invoice", withExtension: "html"){
@@ -207,7 +208,7 @@ class PreviewPurchaseOrderVC: UIViewController, UIDocumentInteractionControllerD
 
         // Sometimes, this delegate is called before the image is loaded. Thus we give it a bit more time.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [self] in
-             pdfPath = poComposer.createPDF(formatter: webView.viewPrintFormatter(), filename: "MyPDFDocument")
+             pdfPath = poComposer.createPDF(formatter: webView.viewPrintFormatter(), filename: "PDF")
             
             print("PDF location: \(pdfPath)")
 //            self.pdfFile = path

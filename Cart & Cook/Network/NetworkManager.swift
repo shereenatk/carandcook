@@ -38,7 +38,8 @@ class  NetworkManager {
                 onCompletion(resp)
                 
             case .failure(let error):
-//                print(error)
+                print(error)
+                
                 let resp = self.complete(response.request, response: response.response, inJSON: response.result.value, inData: nil, error: error)
                 /*if response.response?.statusCode == AppAttributes.sharedInstance.statusCodeToBlock {
                     AppAttributes.sharedInstance.showAppBlockAlert()

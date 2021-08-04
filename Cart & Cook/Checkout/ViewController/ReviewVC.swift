@@ -22,6 +22,30 @@ class ReviewVC: UIViewController {
     @IBOutlet weak var reviewCV: UICollectionView!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var tableItems: [NSManagedObject] = []
+    
+    @IBOutlet weak var addressBtn: UIButton!{
+        didSet{
+            addressBtn.backgroundColor = .white
+            addressBtn.layer.borderColor = AppColor.borderColor.cgColor
+            addressBtn.layer.borderWidth = 2
+        }
+    }
+    @IBOutlet weak var reViewBtn: UIButton!{
+        didSet{
+            
+            reViewBtn.backgroundColor = AppColor.colorPrimary.value
+            reViewBtn.layer.borderColor = AppColor.borderColor.cgColor
+            reViewBtn.layer.borderWidth = 2
+        }
+    }
+    @IBOutlet weak var paymnetBtn: UIButton!{
+        didSet{
+            paymnetBtn.backgroundColor = .white
+            paymnetBtn.layer.borderColor = AppColor.borderColor.cgColor
+            paymnetBtn.layer.borderWidth = 2
+        }
+    }
+    
     override func viewDidLoad() {
         if(fromVc != "quickbuy") {
             getcartList()
@@ -56,11 +80,7 @@ class ReviewVC: UIViewController {
     }
     
     @IBAction func backAction(_ sender: Any) {
-        if let vc =  UIStoryboard(name: "Home", bundle: nil).instantiateViewController(withIdentifier: "HomeTabBarControllerViewController") as? HomeTabBarControllerViewController {
-            vc.selectedIndex = 2
-            self.navigationController?.pushViewController(vc, animated:   true)
-
-        }
+        self.navigationController?.popViewController(animated: true)
     }
     
     @IBOutlet weak var cvHeight: NSLayoutConstraint!
